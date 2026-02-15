@@ -1,14 +1,11 @@
 import { defineConfig } from 'drizzle-kit';
 import z from 'zod';
 import * as dotenv from 'dotenv';
+import { envSchema } from '@/core/config';
 
 dotenv.config();
 
 const validateEnv = () => {
-	const envSchema = z.object({
-		DATABASE_URL: z.url(),
-	});
-
 	const result = envSchema.safeParse(process.env);
 
 	if (!result.success) {
