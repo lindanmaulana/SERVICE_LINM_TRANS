@@ -1,10 +1,12 @@
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
+import { MS } from '@/common/utils/time.utils';
 import { envSchema, throttlerConfig, ThrottlerOptionsService } from '@/core/config';
 import { WinstonConfig } from '@/core/config/winston.config';
 import { DatabaseModule } from '@/core/database/database.module';
 import { AppController } from '@/modules/apps/app.controller';
 import { AppService } from '@/modules/apps/app.service';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
@@ -26,6 +28,10 @@ import { WinstonModule } from 'nest-winston';
 		}),
 
 		WinstonModule.forRootAsync({ useClass: WinstonConfig }),
+		CacheModule.register({
+			isGlobal: true,
+			ttl: MS.MINUTE * 10,
+		}),
 	],
 	controllers: [AppController],
 	providers: [
