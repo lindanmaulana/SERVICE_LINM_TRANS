@@ -1,13 +1,16 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './modules/apps/app.module';
-import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-	app.getHttpAdapter().getInstance().disable('x-powered-by');
+	app.set('trust-proxy', 'loopback');
+	app.use(cookieParser(process.env.COOKIE_SECRET));
 
+	app.getHttpAdapter().getInstance().disable('x-powered-by');
 	app.use(
 		helmet({
 			contentSecurityPolicy: {
@@ -36,8 +39,6 @@ async function bootstrap() {
 		methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
 		credentials: true,
 	});
-
-	app.set('trust-proxy', 'loopback');
 
 	await app.listen(process.env.PORT ?? 3000);
 }

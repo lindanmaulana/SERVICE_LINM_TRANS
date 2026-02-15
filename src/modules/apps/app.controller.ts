@@ -1,5 +1,6 @@
 import { Controller, Get, Req } from '@nestjs/common';
 import { AppService } from '@/modules/apps/app.service';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 
 @Controller()
 export class AppController {
@@ -11,6 +12,7 @@ export class AppController {
 	}
 
 	@Get('ip')
+	@ResponseMessage('Ip user', 'GET')
 	getIp(@Req() req: any) {
 		return {
 			ipDariRequest: req.ip,

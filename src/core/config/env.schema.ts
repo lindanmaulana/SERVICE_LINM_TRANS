@@ -14,6 +14,10 @@ export const envSchema = z.object({
 
 	BASE_DOMAIN: z.url(),
 	WEB_DOMAIN: z.url(),
+
+	COOKIE_SECRET: z.string(),
+	COOKIE_MAX_AGE: z.coerce.number(),
+	COOKIE_MAX_AGE_ACCESS_TOKEN: z.coerce.number(),
 });
 
 export type TypeEnv = z.infer<typeof envSchema>;
