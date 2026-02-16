@@ -1,0 +1,117 @@
+import { ROLES } from '@/common/enums/role.enum';
+import { BadRequestException } from '@nestjs/common';
+
+export class User {
+	constructor(
+		private readonly _id: string | undefined,
+		private _email: string,
+		private _password: string,
+		private _name: string,
+		private _role: ROLES,
+		private _provider: string,
+		private _provider_id: string,
+		private _avatar: string,
+		private _created_at: Date,
+		private _updated_at: Date,
+	) {
+		if (this._email) {
+			const normalize = this._email.trim().toLocaleLowerCase();
+
+			if (!normalize.endsWith('@gmail.com')) throw new BadRequestException('Format email tidak valid');
+		}
+
+		if (this._role === ROLES.CUSTOMER) {
+			const normalize = this._name.toLocaleLowerCase();
+
+			if (normalize.includes('admin')) throw new BadRequestException('Nama pengguna tidak diperbolehkan');
+		}
+	}
+
+	static restore(props: {
+		id: string;
+		name: string;
+		email: string;
+		password: string;
+		role: ROLES;
+		created_at: Date;
+		updated_at: Date;
+	}): User {
+		return new User(
+			props.id,
+			props.name,
+			props.email,
+			props.password,
+			props.role,
+			props.created_at,
+			props.updated_at,
+		);
+	}
+
+	static create(props: { name: string; email: string; password: string; role: ROLE_USERS }): User {
+		return new User(undefined, props.name, props.email, props.password, props.role, new Date(), new Date());
+	}
+
+	update(props: { name?: string; email?: string; password?: string }) {
+		if (props.name !== undefined) this.changeName(props.name);
+		if (props.email !== undefined) this._email = props.email;
+		if (props.password !== undefined) this._password = props.password;
+
+		this.updated();
+	}
+
+	changeEmail(email: string) {
+		const normalize = email.trim().toLowerCase();
+		if (!normalize.endsWith('@gmail.com')) throw new BadRequestException('Format email tidak valid');
+
+		this._email = normalize;
+		this.updated();
+	}
+
+	changeName(name: string) {
+		const normalize = name.trim();
+
+		if (this._name === normalize)
+			throw new BadRequestException('Nama baru tidak boleh sama dengan nama sebelumnya!');
+
+		this._name = normalize;
+		this.updated();
+	}
+
+	get id(): string {
+		if (this._id === undefined) throw new Error('Id cannot be accessed because the entity is not persisted yet.');
+
+		return this._id;
+	}
+
+	get name(): string {
+		return this._name;
+	}
+
+	get email(): string {
+		return this._email;
+	}
+
+	get role(): ROLE_USERS {
+		return this._role;
+	}
+
+	get password(): string {
+		return this._password;
+	}
+
+	get createdAt(): Date {
+		return this._created_at;
+	}
+
+	get updatedAt(): Date {
+		return this._updated_at;
+	}
+
+	private updated() {
+		this._updated_at = new Date();
+	}
+
+	private thisTime() {
+		return new Date();
+	}
+}

@@ -18,6 +18,10 @@ export const envSchema = z.object({
 	COOKIE_SECRET: z.string(),
 	COOKIE_MAX_AGE: z.coerce.number(),
 	COOKIE_MAX_AGE_ACCESS_TOKEN: z.coerce.number(),
+
+	GOOGLE_CLIENT_ID: z.string(),
+	GOOGLE_CLIENT_SECRET: z.string(),
+	GOOGLE_CALLBACK_URL: z.url(),
 });
 
 export type TypeEnv = z.infer<typeof envSchema>;
