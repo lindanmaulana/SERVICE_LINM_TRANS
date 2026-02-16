@@ -1,12 +1,10 @@
 import { timestamp } from 'drizzle-orm/pg-core';
 
 export const timestamps = {
-	created_at: timestamp('created_at').defaultNow().notNull(),
-	updated_at: timestamp('updated_at')
-		.defaultNow()
-		.$onUpdate(() => new Date()),
+	created_at: timestamp({ withTimezone: true }).defaultNow().notNull(),
+	updated_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
 };
 
 export const softDelete = {
-	deleted_at: timestamp('deleted_at'),
+	deleted_at: timestamp({ withTimezone: true }),
 };

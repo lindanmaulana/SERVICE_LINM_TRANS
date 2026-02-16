@@ -33,22 +33,47 @@ export class User {
 		email: string;
 		password: string;
 		role: ROLES;
+		provider: string;
+		providerId: string;
+		avatar: string;
 		created_at: Date;
 		updated_at: Date;
 	}): User {
 		return new User(
 			props.id,
-			props.name,
 			props.email,
 			props.password,
+			props.name,
 			props.role,
+			props.provider,
+			props.providerId,
+			props.avatar,
 			props.created_at,
 			props.updated_at,
 		);
 	}
 
-	static create(props: { name: string; email: string; password: string; role: ROLE_USERS }): User {
-		return new User(undefined, props.name, props.email, props.password, props.role, new Date(), new Date());
+	static create(props: {
+		email: string;
+		password: string;
+		name: string;
+		role: ROLES;
+		provider: string;
+		providerId: string;
+		avatar: string;
+	}): User {
+		return new User(
+			undefined,
+			props.email,
+			props.password,
+			props.name,
+			props.role,
+			props.provider,
+			props.providerId,
+			props.avatar,
+			new Date(),
+			new Date(),
+		);
 	}
 
 	update(props: { name?: string; email?: string; password?: string }) {
@@ -83,20 +108,28 @@ export class User {
 		return this._id;
 	}
 
-	get name(): string {
-		return this._name;
-	}
-
 	get email(): string {
 		return this._email;
 	}
 
-	get role(): ROLE_USERS {
+	get password(): string {
+		return this._password;
+	}
+
+	get name(): string {
+		return this._name;
+	}
+
+	get role(): ROLES {
 		return this._role;
 	}
 
-	get password(): string {
-		return this._password;
+	get provider(): string {
+		return this._provider;
+	}
+
+	get avatar(): string {
+		return this._avatar;
 	}
 
 	get createdAt(): Date {
