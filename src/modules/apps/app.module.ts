@@ -12,6 +12,10 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { WinstonModule } from 'nest-winston';
+import { AuthModule } from '../auth/auth.module';
+import { MasterDataModule } from '../master-data/master-data.module';
+import { OperationsModule } from '../operations/operations.module';
+import { TicketingModule } from '../ticketing/ticketing.module';
 
 @Module({
 	imports: [
@@ -21,6 +25,10 @@ import { WinstonModule } from 'nest-winston';
 			validate: (c) => envSchema.parse(c),
 		}),
 		DatabaseModule,
+		AuthModule,
+		MasterDataModule,
+		OperationsModule,
+		TicketingModule,
 		ThrottlerModule.forRootAsync({
 			imports: [ConfigModule],
 			useClass: ThrottlerOptionsService,

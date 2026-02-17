@@ -1,9 +1,6 @@
 import { defineConfig } from 'drizzle-kit';
 import z from 'zod';
-import * as dotenv from 'dotenv';
-import { envSchema } from '@/core/config';
-
-dotenv.config();
+import { envSchema } from './src/core/config';
 
 const validateEnv = () => {
 	const result = envSchema.safeParse(process.env);
@@ -13,6 +10,8 @@ const validateEnv = () => {
 		throw new Error('Invalid configuration');
 	}
 
+	console.log({ result: result.data });
+
 	return result.data;
 };
 
@@ -20,8 +19,8 @@ const env = validateEnv();
 
 export default defineConfig({
 	dialect: 'postgresql',
-	schema: '@/core/database/schema.ts',
-	out: './drizzle',
+	schema: './src/core/database/drizzle/schema.ts',
+	out: './drizzle/migrations',
 	dbCredentials: {
 		url: env.DATABASE_URL,
 	},
