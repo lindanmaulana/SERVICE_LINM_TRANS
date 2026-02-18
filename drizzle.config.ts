@@ -10,8 +10,6 @@ const validateEnv = () => {
 		throw new Error('Invalid configuration');
 	}
 
-	console.log({ result: result.data });
-
 	return result.data;
 };
 
