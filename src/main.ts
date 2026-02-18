@@ -3,6 +3,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './modules/apps/app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -39,6 +40,14 @@ async function bootstrap() {
 		methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
 		credentials: true,
 	});
+
+	const config = new DocumentBuilder()
+		.setTitle('Linm Trans - Ticketing System')
+		.setDescription('Dokumentasi API Service Ticketing System - Linm Trans')
+		.setVersion('1.0')
+		.build();
+	const document = SwaggerModule.createDocument(app, config);
+	SwaggerModule.setup('API', app, document);
 
 	await app.listen(process.env.PORT ?? 3000);
 }

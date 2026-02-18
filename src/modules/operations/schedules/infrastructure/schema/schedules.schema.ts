@@ -9,15 +9,15 @@ import { numeric, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const SchedulesTable = pgTable('schedules', {
 	id: uuid().primaryKey().defaultRandom(),
-	busId: uuid()
+	busId: uuid('bus_id')
 		.references(() => BusesTable.id)
 		.notNull(),
-	routeId: uuid()
+	routeId: uuid('route_id')
 		.references(() => RoutesTable.id)
 		.notNull(),
-	departureTime: timestamp({ withTimezone: true }).notNull(),
-	arrivalTime: timestamp({ withTimezone: true }).notNull(),
-	basePrice: numeric({ precision: 12, scale: 2 }).notNull(),
+	departureTime: timestamp('departure_time', { withTimezone: true }).notNull(),
+	arrivalTime: timestamp('arrival_time', { withTimezone: true }).notNull(),
+	basePrice: numeric('base_price', { precision: 12, scale: 2 }).notNull(),
 	...softDelete,
 	...timestamps,
 });

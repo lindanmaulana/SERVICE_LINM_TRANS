@@ -7,14 +7,14 @@ export const refundStatusEnum = pgEnum('transaction_status', ['PENDING', 'APPROV
 
 export const RefundsTable = pgTable('refunds', {
 	id: uuid().primaryKey().defaultRandom(),
-	transactionId: uuid()
+	transactionId: uuid('transaction_id')
 		.references(() => TransactionsTable.id)
 		.notNull(),
 	amount: numeric({ precision: 12, scale: 2 }).notNull(),
 	reason: text().notNull(),
 	status: refundStatusEnum().default('PENDING'),
-	adminNotes: text().notNull(),
-	processedAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+	adminNotes: text('admin_notes').notNull(),
+	processedAt: timestamp('processed_at', { withTimezone: true }).defaultNow().notNull(),
 	...softDelete,
 	...timestamps,
 });

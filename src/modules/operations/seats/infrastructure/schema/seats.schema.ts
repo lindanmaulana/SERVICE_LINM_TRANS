@@ -6,11 +6,11 @@ import { boolean, pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
 
 export const SeatsTable = pgTable('seats', {
 	id: uuid().primaryKey().defaultRandom(),
-	scheduleId: uuid()
+	scheduleId: uuid('schedule_id')
 		.references(() => SchedulesTable.id)
 		.notNull(),
-	seatNumber: varchar({ length: 10 }).notNull(),
-	isAvailable: boolean().notNull().default(true),
+	seatNumber: varchar('seat_number', { length: 10 }).notNull(),
+	isAvailable: boolean('is_available').notNull().default(true),
 	...timestamps,
 });
 

@@ -11,17 +11,17 @@ export const bookingStatusEnum = pgEnum('booking_status', ['PENDING', 'PAID', 'C
 
 export const BookingsTable = pgTable('bookings', {
 	id: uuid().primaryKey().defaultRandom(),
-	bookingCode: varchar({ length: 50 }).notNull().unique(),
-	userId: uuid()
+	bookingCode: varchar('booking_code', { length: 50 }).notNull().unique(),
+	userId: uuid('user_id')
 		.references(() => UsersTable.id)
 		.notNull(),
-	scheduleId: uuid()
+	scheduleId: uuid('schedule_id')
 		.references(() => SchedulesTable.id)
 		.notNull(),
-	couponId: uuid().references(() => CouponsTable.id),
-	basePriceTotal: numeric({ precision: 12, scale: 2 }).notNull(),
-	discountTotal: numeric({ precision: 12, scale: 2 }).notNull(),
-	finalPrice: numeric({ precision: 12, scale: 2 }).notNull(),
+	couponId: uuid('coupon_id').references(() => CouponsTable.id),
+	basePriceTotal: numeric('base_price_total', { precision: 12, scale: 2 }).notNull(),
+	discountTotal: numeric('discount_total', { precision: 12, scale: 2 }).notNull(),
+	finalPrice: numeric('final_price', { precision: 12, scale: 2 }).notNull(),
 	status: bookingStatusEnum().default('PENDING'),
 	...softDelete,
 	...timestamps,

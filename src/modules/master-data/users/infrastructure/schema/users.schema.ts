@@ -12,7 +12,7 @@ export const UsersTable = pgTable('users', {
 	name: varchar({ length: 100 }),
 	role: userRoleEnum().default('CUSTOMER').notNull(),
 	provider: varchar({ length: 20 }).notNull().default('local'),
-	providerId: varchar({ length: 255 }),
+	providerId: varchar('provider_id', { length: 255 }),
 	avatar: text(),
 	...softDelete,
 	...timestamps,

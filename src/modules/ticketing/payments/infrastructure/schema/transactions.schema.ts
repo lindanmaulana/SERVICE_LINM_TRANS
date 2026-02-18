@@ -8,15 +8,15 @@ export const transactionStatusEnum = pgEnum('transaction_status', ['PENDING', 'P
 
 export const TransactionsTable = pgTable('transactions', {
 	id: uuid().primaryKey().defaultRandom(),
-	bookingId: uuid()
+	bookingId: uuid('booking_id')
 		.references(() => BookingsTable.id)
 		.notNull(),
-	externalId: varchar({ length: 255 }).notNull().unique(),
+	externalId: varchar('external_id', { length: 255 }).notNull().unique(),
 	amount: numeric({ precision: 12, scale: 2 }).notNull(),
 	currency: varchar({ length: 10 }).default('IDR').notNull(),
 	status: transactionStatusEnum().default('PENDING').notNull(),
-	paymentType: varchar({ length: 50 }),
-	rawResponse: jsonb(),
+	paymentType: varchar('payment_type', { length: 50 }),
+	rawResponse: jsonb('raw_response'),
 	...softDelete,
 	...timestamps,
 });

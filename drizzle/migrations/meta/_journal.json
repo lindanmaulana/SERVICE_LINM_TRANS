@@ -8,6 +8,13 @@
       "when": 1771341727699,
       "tag": "0000_open_shinobi_shaw",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771399416474,
+      "tag": "0001_empty_randall",
+      "breakpoints": true
     }
   ]
 }
