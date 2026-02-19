@@ -1,18 +1,19 @@
-import { ROLES } from '@/common/enums/role.enum';
+import { UserRole, UserRoleType } from '@/common/const/user-role.const';
 import { BadRequestException } from '@nestjs/common';
 
 export class User {
 	constructor(
 		private readonly _id: string | undefined,
 		private _email: string,
-		private _password: string,
-		private _name: string,
-		private _role: ROLES,
+		private _password: string | null,
+		private _name: string | null,
+		private _role: UserRoleType,
 		private _provider: string,
-		private _provider_id: string,
-		private _avatar: string,
+		private _provider_id: string | null,
+		private _avatar: string | null,
 		private _created_at: Date,
 		private _updated_at: Date,
+		private _deleted_at: Date | null,
 	) {
 		if (this._email) {
 			const normalize = this._email.trim().toLocaleLowerCase();
@@ -20,24 +21,31 @@ export class User {
 			if (!normalize.endsWith('@gmail.com')) throw new BadRequestException('Format email tidak valid');
 		}
 
-		if (this._role === ROLES.CUSTOMER) {
+		if (this._role === UserRole.CUSTOMER && this._name !== null) {
 			const normalize = this._name.toLocaleLowerCase();
 
 			if (normalize.includes('admin')) throw new BadRequestException('Nama pengguna tidak diperbolehkan');
+		}
+
+		if (this._password !== null) {
+			const normalize = this._password.trim();
+
+			if (normalize.length < 8) throw new BadRequestException('Password minimal 8 karakter!');
 		}
 	}
 
 	static restore(props: {
 		id: string;
-		name: string;
 		email: string;
-		password: string;
-		role: ROLES;
+		password: string | null;
+		name: string | null;
+		role: UserRoleType;
 		provider: string;
-		providerId: string;
-		avatar: string;
+		providerId: string | null;
+		avatar: string | null;
 		created_at: Date;
 		updated_at: Date;
+		deleted_at: Date | null;
 	}): User {
 		return new User(
 			props.id,
@@ -50,17 +58,18 @@ export class User {
 			props.avatar,
 			props.created_at,
 			props.updated_at,
+			props.deleted_at,
 		);
 	}
 
 	static create(props: {
 		email: string;
-		password: string;
-		name: string;
-		role: ROLES;
+		password: string | null;
+		name: string | null;
+		role: UserRoleType;
 		provider: string;
-		providerId: string;
-		avatar: string;
+		providerId: string | null;
+		avatar: string | null;
 	}): User {
 		return new User(
 			undefined,
@@ -73,6 +82,7 @@ export class User {
 			props.avatar,
 			new Date(),
 			new Date(),
+			null,
 		);
 	}
 
@@ -112,15 +122,15 @@ export class User {
 		return this._email;
 	}
 
-	get password(): string {
+	get password(): string | null {
 		return this._password;
 	}
 
-	get name(): string {
+	get name(): string | null {
 		return this._name;
 	}
 
-	get role(): ROLES {
+	get role(): UserRoleType {
 		return this._role;
 	}
 
@@ -128,7 +138,11 @@ export class User {
 		return this._provider;
 	}
 
-	get avatar(): string {
+	get providerId(): string | null {
+		return this._provider_id;
+	}
+
+	get avatar(): string | null {
 		return this._avatar;
 	}
 
@@ -138,6 +152,10 @@ export class User {
 
 	get updatedAt(): Date {
 		return this._updated_at;
+	}
+
+	get deletedAt(): Date | null {
+		return this._deleted_at;
 	}
 
 	private updated() {

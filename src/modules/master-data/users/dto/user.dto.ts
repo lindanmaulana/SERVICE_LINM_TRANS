@@ -21,15 +21,15 @@ import { createSelectSchema } from 'drizzle-zod';
 // });
 
 export const UserBaseSchema = createSelectSchema(UsersTable, {
-	id: z.string(),
+	id: z.uuid({ error: 'Identitas user tidak valid' }),
 	email: z.email().min(1, 'Email tidak boleh kosong!'),
-	password: z.string().nullable().optional(),
-	name: z.string().min(1, 'Nama tidak boleh kosong!'),
+	password: z.string().nullable(),
+	name: z.string().nullable(),
 	role: z.enum(userRoleEnum.enumValues).default('CUSTOMER'),
 	provider: z.string().min(1, 'Provider tidak boleh kosong').default('local'),
-	providerId: z.string().nullable().optional(),
-	avatar: z.string().nullable().optional(),
-	created_at: z.date(),
-	updated_at: z.date(),
-	deleted_at: z.date().nullable().optional(),
+	providerId: z.string().nullable(),
+	avatar: z.string().nullable(),
+	createdAt: z.date(),
+	updatedAt: z.date(),
+	deletedAt: z.date().nullable(),
 });

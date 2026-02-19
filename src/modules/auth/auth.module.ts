@@ -1,23 +1,28 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtOptionsService } from '@/core/config';
-import { JwtStrategy } from './strategies/jwt.strategy';
 import { LIBRARY_TOKENS } from '@/common/const/token.const';
+import { JwtOptionsService } from '@/core/config';
+import { DrizzleModule } from '@/core/database/drizzle/drizzle.module';
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import bcrypt from 'bcrypt';
+import { UsersModule } from '../master-data/users/users.module';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { OauthStrategy } from './strategies/oauth2.strategy';
 
 @Module({
-	imports: [PassportModule, JwtModule.registerAsync({ useClass: JwtOptionsService })],
+	imports: [DrizzleModule, PassportModule, UsersModule, JwtModule.registerAsync({ useClass: JwtOptionsService })],
 	providers: [
 		AuthService,
+		OauthStrategy,
 		JwtStrategy,
 		{
 			provide: LIBRARY_TOKENS.HASH,
 			useValue: bcrypt,
 		},
 	],
+
 	controllers: [AuthController],
 })
 export class AuthModule {}

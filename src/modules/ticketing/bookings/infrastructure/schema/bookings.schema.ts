@@ -53,3 +53,5 @@ export const BookingsRelations = relations(BookingsTable, ({ one }) => ({
 		references: [PassengersTable.bookingId],
 	}),
 }));
+
+export type Bookings = typeof BookingsTable.$inferInsert;

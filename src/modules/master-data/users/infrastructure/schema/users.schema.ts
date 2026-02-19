@@ -1,7 +1,7 @@
 import { softDelete, timestamps } from '@/core/database/helpers/column.helpers';
-import { BookingsTable } from '@/modules/ticketing/bookings/infrastructure/schema/bookings.schema';
+import { Bookings, BookingsTable } from '@/modules/ticketing/bookings/infrastructure/schema/bookings.schema';
 import { relations } from 'drizzle-orm';
-import { pgEnum, pgTable, uuid, varchar, text } from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
 
 export const userRoleEnum = pgEnum('user_role', ['ADMIN', 'CUSTOMER']);
 
@@ -21,3 +21,9 @@ export const UsersTable = pgTable('users', {
 export const UserRelations = relations(UsersTable, ({ many }) => ({
 	bookings: many(BookingsTable),
 }));
+
+export type Users = typeof UsersTable.$inferSelect;
+
+export type UserWithBookings = Users & {
+	bookings: Bookings[];
+};
