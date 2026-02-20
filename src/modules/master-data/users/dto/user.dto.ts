@@ -1,6 +1,7 @@
-import z from 'zod';
-import { userRoleEnum, UsersTable } from '../../master-data.schema';
+import { RoleAccepted, UserRole } from '@/common/const/user-role.const';
 import { createSelectSchema } from 'drizzle-zod';
+import z from 'zod';
+import { UsersTable } from '../../master-data.schema';
 
 // export const UserBaseSchema = z.object({
 // 	id: z.string(),
@@ -25,7 +26,7 @@ export const UserBaseSchema = createSelectSchema(UsersTable, {
 	email: z.email().min(1, 'Email tidak boleh kosong!'),
 	password: z.string().nullable(),
 	name: z.string().nullable(),
-	role: z.enum(userRoleEnum.enumValues).default('CUSTOMER'),
+	role: z.enum(RoleAccepted).default(UserRole.CUSTOMER),
 	provider: z.string().min(1, 'Provider tidak boleh kosong').default('local'),
 	providerId: z.string().nullable(),
 	avatar: z.string().nullable(),

@@ -4,3 +4,4 @@ export const UserRole = {
 } as const;
 
 export type UserRoleType = 'ADMIN' | 'CUSTOMER';
+export const RoleAccepted = [UserRole.ADMIN, UserRole.CUSTOMER] as const;

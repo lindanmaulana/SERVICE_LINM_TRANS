@@ -1,4 +1,3 @@
-import { SetMetadata } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 
-export const COOKIE_NAME_KEY = 'COOKIE_NAME_KEY';
-export const CookieName = (name: string) => SetMetadata(COOKIE_NAME_KEY, name);
+export const CookieName = Reflector.createDecorator<string>();

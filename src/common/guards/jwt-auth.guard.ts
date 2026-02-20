@@ -2,7 +2,7 @@ import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/com
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
-import { IsPublicKey } from '../decorators/is-public.decorator';
+import { IsPublic } from '../decorators/is-public.decorator';
 
 interface PassportInfo {
 	message?: string;
@@ -15,7 +15,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 	}
 
 	canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-		const isPublic = this.reflector.getAllAndOverride<string>(IsPublicKey, [
+		const isPublic = this.reflector.getAllAndOverride<boolean>(IsPublic, [
 			context.getHandler(),
 			context.getClass(),
 		]);

@@ -6,5 +6,3 @@ declare module 'express' {
 		user: JwtPayload | OauthGooglePayload;
 	}
 }
-
-export {};

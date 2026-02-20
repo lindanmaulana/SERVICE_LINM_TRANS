@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Response } from 'express';
 import { Observable, tap } from 'rxjs';
-import { COOKIE_NAME_KEY } from '../decorators/cookie-name.decorator';
+import { CookieName } from '../decorators/cookie-name.decorator';
 
 @Injectable()
 export class CookieInterceptor implements NestInterceptor {
@@ -21,7 +21,7 @@ export class CookieInterceptor implements NestInterceptor {
 	intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
 		const res = context.switchToHttp().getResponse<Response>();
 
-		const COOKIE_NAME = this.reflector.getAllAndOverride<string | undefined>(COOKIE_NAME_KEY, [
+		const COOKIE_NAME = this.reflector.getAllAndOverride<string | undefined>(CookieName, [
 			context.getHandler(),
 			context.getClass(),
 		]);

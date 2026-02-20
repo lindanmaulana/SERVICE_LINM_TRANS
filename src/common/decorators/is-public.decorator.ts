@@ -1,4 +1,3 @@
-import { SetMetadata } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 
-export const IsPublicKey = 'IS_PUBLIC';
-export const IsPublic = () => SetMetadata(IsPublicKey, true);
+export const IsPublic = Reflector.createDecorator();
