@@ -48,12 +48,11 @@ export class ResponseInterceptor implements NestInterceptor {
 				}
 
 				if (isObj(payload)) {
-					const { data, meta, access_token, ...res } = payload as StandardPayload;
+					const { data, meta, ...res } = payload as StandardPayload;
 
 					response.data = data || (Object.keys(res).length > 0 ? res : null);
 
 					if (meta) response.meta = meta;
-					if (access_token) response.access_token = access_token;
 				}
 
 				return response;

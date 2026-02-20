@@ -7,6 +7,10 @@ import { Roles } from '@/common/decorators/roles.decorator';
 import { UserRole } from '@/common/const/user-role.const';
 import { RoleAllowedGuard } from '@/common/guards/role-allowed.guard';
 import { IsPublic } from '@/common/decorators/is-public.decorator';
+import { GetProfileUserResponseDto } from './dto/get-profile-user.dto';
+import { User } from '@/common/decorators/user.decorator';
+import type { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 
 @Controller('users')
 @ApiTags('Users')
@@ -28,5 +32,8 @@ export class UsersController {
 	}
 
 	@Get('me')
-	async me() {}
+	@ResponseMessage('Profile', 'GET')
+	async me(@User() user: JwtPayload): Promise<GetProfileUserResponseDto> {
+		return this.userService.findProfile(user);
+	}
 }
