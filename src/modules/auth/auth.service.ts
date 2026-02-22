@@ -1,6 +1,6 @@
 import { LIBRARY_TOKENS, REPOSITORY_TOKENS } from '@/common/const/token.const';
 import { UserRole } from '@/common/const/user-role.const';
-import type { UserRepository } from '@/modules/master-data/users/domain/repositories/user.repository.interface';
+import type { UserRepository } from '@/modules/master-data/users/domain/repositories/user.repository';
 import { Inject, Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';

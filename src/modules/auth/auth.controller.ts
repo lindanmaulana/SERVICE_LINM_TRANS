@@ -9,7 +9,7 @@ import { CookieInterceptor } from '@/common/interceptors/cookie.interceptor';
 import { CookieName } from '@/common/decorators/cookie-name.decorator';
 import { Cookies } from '@/common/enums/cookies.enum';
 
-@Controller('auth')
+@Controller({ path: 'auth', version: '1' })
 @ApiTags('Auth')
 export class AuthController {
 	constructor(private authService: AuthService) {}

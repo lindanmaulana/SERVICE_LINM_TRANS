@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
 import { GetProfileUserResponseDto } from '../../dto/get-profile-user.dto';
+import { GetOneUserResponseDto } from '../../dto/get-one-user.dto';
 
 @Injectable()
 export class UserResponseMapper {
@@ -19,5 +20,13 @@ export class UserResponseMapper {
 
 	static toGetProfile(user: User): GetProfileUserResponseDto {
 		return this.base(user);
+	}
+
+	static toGetOne(user: User): GetOneUserResponseDto {
+		return {
+			...this.base(user),
+			providerId: user.providerId,
+			deletedAt: user.deletedAt,
+		};
 	}
 }

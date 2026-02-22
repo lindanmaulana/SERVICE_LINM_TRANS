@@ -1,6 +1,6 @@
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { Roles } from '@/common/decorators/roles.decorator';
@@ -11,8 +11,11 @@ import { GetProfileUserResponseDto } from './dto/get-profile-user.dto';
 import { User } from '@/common/decorators/user.decorator';
 import type { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 import { ResponseMessage } from '@/common/decorators/response-message.decorator';
+import { GetOneUserResponseDto } from './dto/get-one-user.dto';
+import { UpdateProfileUserDto, UpdateProfileUserResponseDto } from './dto/update-profile-user.dto';
+import { DeleteUserResponseDto } from './dto/delete-user.dto';
 
-@Controller('users')
+@Controller({ path: 'users', version: '1' })
 @ApiTags('Users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
@@ -35,5 +38,26 @@ export class UsersController {
 	@ResponseMessage('Profile', 'GET')
 	async me(@User() user: JwtPayload): Promise<GetProfileUserResponseDto> {
 		return this.userService.findProfile(user);
+	}
+
+	@Patch('me')
+	@ResponseMessage('Profile', 'UPDATE')
+	async meUpdate(@User() user: JwtPayload, @Body() dto: UpdateProfileUserDto): Promise<UpdateProfileUserResponseDto> {
+		console.log({ dto, user });
+		return this.userService.updateProfile(user, dto);
+	}
+
+	@Get(':id')
+	@Roles([UserRole.ADMIN])
+	@UseGuards(RoleAllowedGuard)
+	async getOne(@Param('id') id: string): Promise<GetOneUserResponseDto> {
+		return this.userService.findOne(id);
+	}
+
+	@Delete(':id')
+	@Roles([UserRole.ADMIN])
+	@UseGuards(RoleAllowedGuard)
+	async remove(@Param('id') id: string): Promise<DeleteUserResponseDto> {
+		return this.userService.delete(id);
 	}
 }

@@ -112,6 +112,10 @@ export class User {
 		this.updated();
 	}
 
+	setDeleted() {
+		this._deleted_at = new Date();
+	}
+
 	get id(): string {
 		if (this._id === undefined) throw new Error('Id cannot be accessed because the entity is not persisted yet.');
 

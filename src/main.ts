@@ -4,9 +4,16 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './modules/apps/app.module';
+import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+	app.setGlobalPrefix('api');
+	app.enableVersioning({
+		type: VersioningType.URI,
+		defaultVersion: '1',
+	});
 
 	app.set('trust-proxy', 'loopback');
 	app.use(cookieParser(process.env.COOKIE_SECRET));

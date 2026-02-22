@@ -3,7 +3,7 @@ import { User } from '@/modules/master-data/users/domain/entities/user.entity';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import type { UserRepository } from './domain/repositories/user.repository.interface';
+import type { UserRepository } from './domain/repositories/user.repository';
 
 @Injectable()
 export class UsersSharedService {

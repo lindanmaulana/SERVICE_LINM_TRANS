@@ -56,4 +56,31 @@ export class UserDrizzleRepository extends BaseRepository {
 			return UserPersistanceMapper.toEntity(newUser);
 		});
 	}
+
+	async update(user: User): Promise<User> {
+		return this.execute(async () => {
+			const record = UserPersistanceMapper.toPersistence(user);
+
+			const [result] = await this.db
+				.update(schema.UsersTable)
+				.set(record)
+				.where(eq(schema.UsersTable.id, user.id))
+				.returning();
+
+			return UserPersistanceMapper.toEntity(result);
+		});
+	}
+
+	async delete(user: User): Promise<User> {
+		return this.execute(async () => {
+			const [result] = await this.db
+				.update(schema.UsersTable)
+				.set({
+					deletedAt: user.deletedAt,
+				})
+				.returning();
+
+			return UserPersistanceMapper.toEntity(result);
+		});
+	}
 }
