@@ -13,12 +13,12 @@ export const BookingsTable = pgTable('bookings', {
 	id: uuid().primaryKey().defaultRandom(),
 	bookingCode: varchar('booking_code', { length: 50 }).notNull().unique(),
 	userId: uuid('user_id')
-		.references(() => UsersTable.id)
+		.references(() => UsersTable.id, { onDelete: 'restrict', onUpdate: 'cascade' })
 		.notNull(),
 	scheduleId: uuid('schedule_id')
-		.references(() => SchedulesTable.id)
+		.references(() => SchedulesTable.id, { onDelete: 'restrict', onUpdate: 'cascade' })
 		.notNull(),
-	couponId: uuid('coupon_id').references(() => CouponsTable.id),
+	couponId: uuid('coupon_id').references(() => CouponsTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
 	basePriceTotal: numeric('base_price_total', { precision: 12, scale: 2 }).notNull(),
 	discountTotal: numeric('discount_total', { precision: 12, scale: 2 }).notNull(),
 	finalPrice: numeric('final_price', { precision: 12, scale: 2 }).notNull(),

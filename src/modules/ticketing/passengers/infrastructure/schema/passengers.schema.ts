@@ -7,10 +7,10 @@ import { pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
 export const PassengersTable = pgTable('passengers', {
 	id: uuid().primaryKey().defaultRandom(),
 	bookingId: uuid('booking_id')
-		.references(() => BookingsTable.id)
+		.references(() => BookingsTable.id, { onDelete: 'restrict', onUpdate: 'cascade' })
 		.notNull(),
 	seatId: uuid('seat_id')
-		.references(() => SeatsTable.id)
+		.references(() => SeatsTable.id, { onDelete: 'restrict', onUpdate: 'cascade' })
 		.notNull(),
 	name: varchar({ length: 100 }).notNull(),
 	identityNo: varchar('identity_no', { length: 30 }).notNull(),

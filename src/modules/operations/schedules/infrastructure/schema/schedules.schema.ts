@@ -10,10 +10,10 @@ import { numeric, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core';
 export const SchedulesTable = pgTable('schedules', {
 	id: uuid().primaryKey().defaultRandom(),
 	busId: uuid('bus_id')
-		.references(() => BusesTable.id)
+		.references(() => BusesTable.id, { onDelete: 'restrict', onUpdate: 'cascade' })
 		.notNull(),
 	routeId: uuid('route_id')
-		.references(() => RoutesTable.id)
+		.references(() => RoutesTable.id, { onDelete: 'restrict', onUpdate: 'cascade' })
 		.notNull(),
 	departureTime: timestamp('departure_time', { withTimezone: true }).notNull(),
 	arrivalTime: timestamp('arrival_time', { withTimezone: true }).notNull(),

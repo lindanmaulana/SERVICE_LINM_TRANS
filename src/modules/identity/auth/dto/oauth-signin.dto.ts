@@ -8,6 +8,12 @@ export const OauthGoogleSigninSchema = UserBaseSchema.pick({
 	provider: true,
 	providerId: true,
 	avatar: true,
+}).extend({
+	email: z.email(),
+	name: z.string().nullable().default(null),
+	provider: z.string().default('google'),
+	providerId: z.string().min(1, 'Provider ID dari Google wajib ada'),
+	avatar: z.string().nullable().default(null),
 });
 
 export class OauthGoogleSigninDto extends createZodDto(OauthGoogleSigninSchema) {

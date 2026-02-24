@@ -1,4 +1,4 @@
-import { Users } from '@/modules/master-data/users/infrastructure/schema/users.schema';
+import { Users } from '@/modules/master-data/users/infrastructure/schema/user.schema';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
 
 export class UserPersistanceMapper {

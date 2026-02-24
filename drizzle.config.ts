@@ -21,5 +21,5 @@ export default defineConfig({
 	out: './drizzle/migrations',
 	dbCredentials: {
 		url: env.DATABASE_URL,
-	},
+	}
 });

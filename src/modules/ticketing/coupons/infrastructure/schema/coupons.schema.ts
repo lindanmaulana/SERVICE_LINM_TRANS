@@ -19,9 +19,9 @@ export const CouponsTable = pgTable('coupons', {
 	isActive: boolean('is_active').notNull().default(true),
 	expiredDate: timestamp('expired_date', { withTimezone: true }).notNull(),
 
-	scheduleId: uuid('schedule_id').references(() => SchedulesTable.id),
-	busId: uuid('bus_id').references(() => BusesTable.id),
-	routeId: uuid('route_id').references(() => RoutesTable.id),
+	scheduleId: uuid('schedule_id').references(() => SchedulesTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
+	busId: uuid('bus_id').references(() => BusesTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
+	routeId: uuid('route_id').references(() => RoutesTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
 
 	...softDelete,
 	...timestamps,

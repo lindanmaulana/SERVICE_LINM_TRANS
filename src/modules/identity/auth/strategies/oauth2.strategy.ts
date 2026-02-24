@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
-import { OauthGoogleSigninDto } from '../dto/auth-signin.dto';
+import { OauthGoogleSigninDto } from '../dto/oauth-signin.dto';
 
 export interface GoogleProfile {
 	id: string;
@@ -52,8 +52,6 @@ export class OauthStrategy extends PassportStrategy(Strategy, 'google') {
 	}
 
 	validate(accessToken: string, refreshToken: string, profile: GoogleProfile): OauthGoogleSigninDto {
-		console.dir(profile, { depth: null });
-
 		const { emails, photos, id: providerId, provider, displayName } = profile;
 
 		const user = {

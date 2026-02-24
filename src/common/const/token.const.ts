@@ -4,6 +4,7 @@ export const DB_TOKENS = {
 
 export const LIBRARY_TOKENS = {
 	HASH: Symbol('LIB_HASH'),
+	RESEND: Symbol('LIB_RESEND'),
 } as const;
 
 export const REPOSITORY_TOKENS = {

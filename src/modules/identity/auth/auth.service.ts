@@ -1,16 +1,17 @@
 import { LIBRARY_TOKENS, REPOSITORY_TOKENS } from '@/common/const/token.const';
 import { UserRole } from '@/common/const/user-role.const';
 import type { UserRepository } from '@/modules/master-data/users/domain/repositories/user.repository';
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
-import { OauthGoogleSigninDto, OauthGoogleSigninResponseDto } from '@/modules/auth/dto/oauth-signin.dto';
+import { OauthGoogleSigninDto, OauthGoogleSigninResponseDto } from '@/modules/identity/auth/dto/oauth-signin.dto';
 import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { AuthResponseMapper } from '@/modules/auth/infrastructure/auth-response.mapper';
 import { UsersSharedService } from '@/modules/master-data/users/users-shared.service';
+import { AuthhSignUpDto, AuthhSignUpResponseDto } from './dto/auth-signup.dto';
+import { AuthResponseMapper } from '@/modules/identity/auth/infrastructure/auth-response.mapper';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,30 @@ export class AuthService {
 		private jwtService: JwtService,
 	) {}
 
-	async signinGoogle(dto: OauthGoogleSigninDto): Promise<OauthGoogleSigninResponseDto> {
+	async signUp(dto: AuthhSignUpDto): Promise<AuthhSignUpResponseDto> {
+		const userEntity = await this.userRepository.findByEmail(dto.email);
+		if (userEntity) {
+			throw new BadRequestException('Email telah di gunakan!');
+		}
+
+		const hashPassword = await this.libHash.hash(dto.password, 8);
+
+		const record = User.create({
+			email: dto.email,
+			password: hashPassword,
+			name: dto.name,
+			role: UserRole.CUSTOMER,
+			provider: 'local',
+			providerId: null,
+			avatar: null,
+		});
+
+		const result = await this.userRepository.create(record);
+
+		return AuthResponseMapper.toAuthSignUp(result);
+	}
+
+	async signInGoogle(dto: OauthGoogleSigninDto): Promise<OauthGoogleSigninResponseDto> {
 		const userEntity = await this.userRepository.findByEmail(dto.email);
 
 		let payloadToken: JwtPayload = { id: '', name: 'User', email: '', role: UserRole.CUSTOMER };

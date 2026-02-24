@@ -8,7 +8,7 @@ export const refundStatusEnum = pgEnum('transaction_status', ['PENDING', 'APPROV
 export const RefundsTable = pgTable('refunds', {
 	id: uuid().primaryKey().defaultRandom(),
 	transactionId: uuid('transaction_id')
-		.references(() => TransactionsTable.id)
+		.references(() => TransactionsTable.id, { onDelete: 'restrict', onUpdate: 'cascade' })
 		.notNull(),
 	amount: numeric({ precision: 12, scale: 2 }).notNull(),
 	reason: text().notNull(),

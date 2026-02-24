@@ -15,6 +15,13 @@
       "when": 1771399416474,
       "tag": "0001_empty_randall",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771927053749,
+      "tag": "0002_refactor_cascade_on_delete_update",
+      "breakpoints": true
     }
   ]
 }

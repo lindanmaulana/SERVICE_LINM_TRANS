@@ -6,7 +6,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { User } from '../../domain/entities/user.entity';
-import { UserPersistanceMapper } from './users-persistance.mapper';
+import { UserPersistanceMapper } from './user-persistance.mapper';
 import { DB_TOKENS } from '@/common/const/token.const';
 
 @Injectable()

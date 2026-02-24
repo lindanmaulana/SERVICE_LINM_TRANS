@@ -12,20 +12,21 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { WinstonModule } from 'nest-winston';
-import { AuthModule } from '../auth/auth.module';
 import { MasterDataModule } from '../master-data/master-data.module';
 import { OperationsModule } from '../operations/operations.module';
 import { TicketingModule } from '../ticketing/ticketing.module';
+import { ResendConfig } from '@/core/config/resend-mail/resend-mail.config';
+import { IdentityModule } from '../identity/identity.module';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
-			load: [throttlerConfig, jwtConfig],
+			load: [throttlerConfig, jwtConfig, ResendConfig],
 			validate: (c) => envSchema.parse(c),
 		}),
 		DatabaseModule,
-		AuthModule,
+		IdentityModule,
 		MasterDataModule,
 		OperationsModule,
 		TicketingModule,

@@ -1,4 +1,5 @@
 import { softDelete, timestamps } from '@/core/database/helpers/column.helpers';
+import { OtpsTable } from '@/modules/identity/otps/infrastructure/schemas/otp.schema';
 import { Bookings, BookingsTable } from '@/modules/ticketing/bookings/infrastructure/schema/bookings.schema';
 import { relations } from 'drizzle-orm';
 import { pgEnum, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
@@ -20,6 +21,7 @@ export const UsersTable = pgTable('users', {
 
 export const UserRelations = relations(UsersTable, ({ many }) => ({
 	bookings: many(BookingsTable),
+	otps: many(OtpsTable),
 }));
 
 export type Users = typeof UsersTable.$inferSelect;

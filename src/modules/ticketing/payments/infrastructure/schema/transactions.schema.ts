@@ -9,7 +9,7 @@ export const transactionStatusEnum = pgEnum('transaction_status', ['PENDING', 'P
 export const TransactionsTable = pgTable('transactions', {
 	id: uuid().primaryKey().defaultRandom(),
 	bookingId: uuid('booking_id')
-		.references(() => BookingsTable.id)
+		.references(() => BookingsTable.id, { onDelete: 'restrict', onUpdate: 'cascade' })
 		.notNull(),
 	externalId: varchar('external_id', { length: 255 }).notNull().unique(),
 	amount: numeric({ precision: 12, scale: 2 }).notNull(),

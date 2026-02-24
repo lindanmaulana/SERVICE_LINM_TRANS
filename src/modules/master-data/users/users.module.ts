@@ -1,7 +1,7 @@
 import { REPOSITORY_TOKENS } from '@/common/const/token.const';
 import { DrizzleModule } from '@/core/database/drizzle/drizzle.module';
 import { Module } from '@nestjs/common';
-import { UserDrizzleRepository } from './infrastructure/persistance/users-drizzle.repository';
+import { UserDrizzleRepository } from './infrastructure/persistances/user-drizzle.repository';
 import { UsersSharedService } from './users-shared.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';

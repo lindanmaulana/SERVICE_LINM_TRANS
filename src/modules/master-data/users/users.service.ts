@@ -6,7 +6,7 @@ import type { UserRepository } from './domain/repositories/user.repository';
 import { GetProfileUserResponseDto } from './dto/get-profile-user.dto';
 import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 import { UsersSharedService } from './users-shared.service';
-import { UserResponseMapper } from './infrastructure/persistance/users-response.mapper';
+import { UserResponseMapper } from './infrastructure/persistances/user-response.mapper';
 import { GetOneUserResponseDto } from './dto/get-one-user.dto';
 import { UpdateProfileUserDto, UpdateProfileUserResponseDto } from './dto/update-profile-user.dto';
 import { DeleteUserResponseDto } from './dto/delete-user.dto';

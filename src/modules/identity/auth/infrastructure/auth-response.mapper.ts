@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
 import { OauthGoogleSigninResponseDto } from '../dto/oauth-signin.dto';
+import { AuthhSignUpResponseDto } from '../dto/auth-signup.dto';
 
 @Injectable()
 export class AuthResponseMapper {
@@ -23,5 +24,9 @@ export class AuthResponseMapper {
 			user: this.base(user),
 			access_token: accessToken,
 		};
+	}
+
+	static toAuthSignUp(user: User): AuthhSignUpResponseDto {
+		return this.base(user);
 	}
 }

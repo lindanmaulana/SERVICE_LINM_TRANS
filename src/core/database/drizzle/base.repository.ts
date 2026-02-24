@@ -1,4 +1,5 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { error } from 'console';
 import { DrizzleError, DrizzleQueryError } from 'drizzle-orm';
 import { Logger } from 'winston';
 
@@ -14,33 +15,32 @@ export abstract class BaseRepository {
 		} catch (err: unknown) {
 			const logData: Record<string, unknown> = {
 				context: this.context,
-				message: 'Anunexpected error occurred!',
 			};
 
 			if (err instanceof Error) {
+				logData.name = err.name;
 				logData.message = err.message;
 				logData.stack = err.stack;
+
+				const dbErr = err as any;
+				logData.code = dbErr.code || dbErr.errno;
 			}
 
 			if (err instanceof DrizzleError) {
-				logData.message = err.message;
 				logData.cause = err.cause;
-				logData.stack = err.stack;
-				logData.name = err.name;
 			}
 
 			if (err instanceof DrizzleQueryError) {
-				logData.message = err.message;
-				logData.cause = err.cause;
-				logData.stack = err.stack;
-				logData.name = err.name;
 				logData.query = err.query;
 				logData.params = err.params;
 			}
 
 			this.logger.error('Database operation failed', logData);
 
-			throw new InternalServerErrorException('Terjadi kesalahan pada sistem, please try again later!');
+			const dbCode = (err as any).code || (err as any).errno;
+			if (dbCode === '23503' || dbCode === 1451) throw new BadRequestException('Data tidak bisa di hapus karena masih digunakan dalam riwayat sistem!');
+
+			throw new InternalServerErrorException('Terjadi kesalahan pada sistem, silahkan coba lagi nanti!');
 		}
 	}
 }
