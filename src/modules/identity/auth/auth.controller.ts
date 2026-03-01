@@ -9,6 +9,7 @@ import { Body, Controller, Get, Post, UseGuards, UseInterceptors } from '@nestjs
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { OauthGoogleSigninResponseDto } from './dto/oauth-signin.dto';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 
 @Controller({ path: 'auth', version: '1' })
 @ApiTags('Auth')
@@ -22,8 +23,9 @@ export class AuthController {
 	async signIn() {}
 
 	@Post('signup')
+	@ResponseMessage('Registrasi Berhasil', 'CREATE')
 	async signUp(@Body() dto: AuthhSignUpDto): Promise<AuthhSignUpResponseDto> {
-		return this.signUp(dto);
+		return this.authService.signUp(dto);
 	}
 
 	@Get('google')

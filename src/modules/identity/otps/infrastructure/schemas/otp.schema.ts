@@ -12,7 +12,7 @@ export const OtpsTable = pgTable('otps', {
 		.notNull(),
 	otpCode: varchar('otp_code', { length: 6 }).notNull(),
 	isUsed: boolean('is_used').default(false).notNull(),
-	expiryDate: timestamp({ withTimezone: true }).notNull(),
+	expiryDate: timestamp('expiry_date', { withTimezone: true }).notNull(),
 	type: otpTypeEnum().notNull(),
 	attempts: integer().default(0).notNull(),
 	...timestamps,
@@ -24,3 +24,5 @@ export const OtpsRelations = relations(OtpsTable, ({ one, many }) => ({
 		references: [UsersTable.id],
 	}),
 }));
+
+export type Otps = typeof OtpsTable.$inferSelect;

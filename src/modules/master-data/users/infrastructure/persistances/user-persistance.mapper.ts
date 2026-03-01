@@ -12,6 +12,7 @@ export class UserPersistanceMapper {
 			provider: user.provider,
 			providerId: user.providerId,
 			avatar: user.avatar,
+			status: user.status,
 			created_at: user.createdAt,
 			updated_at: user.updatedAt,
 			deleted_at: user.deletedAt,

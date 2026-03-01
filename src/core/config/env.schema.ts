@@ -12,6 +12,7 @@ export const envSchema = z.object({
 	THROTTLE_LONG_TTL: z.coerce.number().default(3600000),
 	THROTTLE_LONG_LIMIT: z.coerce.number().default(1000),
 
+	BASE_DOMAIN_CLIENT: z.url(),
 	BASE_DOMAIN: z.url(),
 	WEB_DOMAIN: z.url(),
 

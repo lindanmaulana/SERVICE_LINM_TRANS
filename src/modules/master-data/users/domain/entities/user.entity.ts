@@ -1,4 +1,5 @@
 import { UserRole, UserRoleType } from '@/common/const/user-role.const';
+import { UserStatusType } from '@/common/const/user.const';
 import { BadRequestException } from '@nestjs/common';
 
 export class User {
@@ -11,6 +12,7 @@ export class User {
 		private _provider: string,
 		private _provider_id: string | null,
 		private _avatar: string | null,
+		private _status: UserStatusType,
 		private _created_at: Date,
 		private _updated_at: Date,
 		private _deleted_at: Date | null,
@@ -43,6 +45,7 @@ export class User {
 		provider: string;
 		providerId: string | null;
 		avatar: string | null;
+		status: UserStatusType;
 		created_at: Date;
 		updated_at: Date;
 		deleted_at: Date | null;
@@ -56,6 +59,7 @@ export class User {
 			props.provider,
 			props.providerId,
 			props.avatar,
+			props.status,
 			props.created_at,
 			props.updated_at,
 			props.deleted_at,
@@ -70,6 +74,7 @@ export class User {
 		provider: string;
 		providerId: string | null;
 		avatar: string | null;
+		status: UserStatusType;
 	}): User {
 		return new User(
 			undefined,
@@ -80,6 +85,7 @@ export class User {
 			props.provider,
 			props.providerId,
 			props.avatar,
+			props.status,
 			new Date(),
 			new Date(),
 			null,
@@ -148,6 +154,10 @@ export class User {
 
 	get avatar(): string | null {
 		return this._avatar;
+	}
+
+	get status(): UserStatusType {
+		return this._status;
 	}
 
 	get createdAt(): Date {

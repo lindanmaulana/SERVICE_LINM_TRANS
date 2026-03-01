@@ -1,11 +1,11 @@
 import { createZodDto } from 'nestjs-zod';
-import { OtpBaseSchema } from './otp.dto';
+import { OtpBaseSchema } from '@/modules/identity/otps/dto';
 
 export const CreateOtpSchema = OtpBaseSchema.pick({
-	user_id: true,
-	otp_code: true,
+	userId: true,
+	otpCode: true,
 	type: true,
-	expiry_date: true,
+	expiryDate: true,
 });
 export class CreateOtpDto extends createZodDto(CreateOtpSchema) {
 	static schema = CreateOtpSchema;

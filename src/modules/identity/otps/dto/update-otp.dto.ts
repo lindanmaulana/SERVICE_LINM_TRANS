@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateOtpDto } from './create-otp.dto';
+import { OtpBaseSchema } from '@/modules/identity/otps/dto';
+import { createZodDto } from 'nestjs-zod';
 
-export class UpdateOtpDto extends PartialType(CreateOtpDto) {}
+// export class UpdateOtpDto extends createZodDto(OtpBaseSchema) {}

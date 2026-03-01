@@ -9,4 +9,5 @@ export const LIBRARY_TOKENS = {
 
 export const REPOSITORY_TOKENS = {
 	USER: Symbol('USER_REPOSITORY'),
+	OTP: Symbol('OTP_REPOSITORY'),
 } as const;

@@ -1,14 +1,19 @@
 import { OtpType } from '@/common/const/otp-type.const';
+import { createSelectSchema } from 'drizzle-zod';
 import z from 'zod';
+import { OtpsTable } from '../infrastructure/schemas/otp.schema';
 
-export const OtpBaseSchema = z.object({
+export const OtpBaseSchema = createSelectSchema(OtpsTable, {
 	id: z.uuid(),
-	user_id: z.uuid(),
-	otp_code: z.string().min(6).max(6),
-	is_used: z.boolean().default(false),
-	expiry_date: z.date(),
+	userId: z.uuid(),
+	otpCode: z.string().min(6).max(6),
+	isUsed: z.boolean().default(false),
+	expiryDate: z
+		.string()
+		.refine((v) => !Number.isNaN(Date.parse(v)), { error: 'Tanggal tidak valid' })
+		.transform((v) => new Date(v)),
 	type: z.enum(OtpType),
 	attempts: z.coerce.number().int().nonnegative({ error: 'Attempts tidak boleh kurang dari 0' }).default(0),
-	created_at: z.date(),
-	updated_at: z.date(),
+	createdAt: z.date(),
+	updatedAt: z.date(),
 });

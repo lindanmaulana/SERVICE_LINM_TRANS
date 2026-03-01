@@ -38,8 +38,10 @@ export abstract class BaseRepository {
 			this.logger.error('Database operation failed', logData);
 
 			const dbCode = (err as any).code || (err as any).errno;
-			if (dbCode === '23503' || dbCode === 1451) throw new BadRequestException('Data tidak bisa di hapus karena masih digunakan dalam riwayat sistem!');
+			if (dbCode === '23503' || dbCode === 1451)
+				throw new BadRequestException('Data tidak bisa di hapus karena masih digunakan dalam riwayat sistem!');
 
+			console.log({err})
 			throw new InternalServerErrorException('Terjadi kesalahan pada sistem, silahkan coba lagi nanti!');
 		}
 	}

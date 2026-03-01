@@ -4,11 +4,13 @@ import { MailController } from './mail.controller';
 import { LIBRARY_TOKENS } from '@/common/const/token.const';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
+import { MailSharedService } from './mail-shared.service';
 
 @Module({
 	controllers: [MailController],
 	providers: [
 		MailService,
+		MailSharedService,
 		{
 			provide: LIBRARY_TOKENS.RESEND,
 			inject: [ConfigService],
@@ -19,5 +21,6 @@ import { Resend } from 'resend';
 			},
 		},
 	],
+	exports: [MailSharedService],
 })
 export class MailModule {}

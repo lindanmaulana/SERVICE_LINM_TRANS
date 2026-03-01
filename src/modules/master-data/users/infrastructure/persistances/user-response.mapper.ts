@@ -13,6 +13,7 @@ export class UserResponseMapper {
 			role: user.role,
 			provider: user.provider,
 			avatar: user.avatar,
+			status: user.status,
 			createdAt: user.createdAt,
 			updatedAt: user.updatedAt,
 		};

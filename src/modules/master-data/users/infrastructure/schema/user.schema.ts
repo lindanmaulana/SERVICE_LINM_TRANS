@@ -5,6 +5,7 @@ import { relations } from 'drizzle-orm';
 import { pgEnum, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
 
 export const userRoleEnum = pgEnum('user_role', ['ADMIN', 'CUSTOMER']);
+export const userStatusEnum = pgEnum('user_status', ['PENDING', 'ACTIVE', 'BANNED']);
 
 export const UsersTable = pgTable('users', {
 	id: uuid().primaryKey().defaultRandom(),
@@ -15,6 +16,7 @@ export const UsersTable = pgTable('users', {
 	provider: varchar({ length: 20 }).notNull().default('local'),
 	providerId: varchar('provider_id', { length: 255 }),
 	avatar: text(),
+	status: userStatusEnum().default('PENDING').notNull(),
 	...softDelete,
 	...timestamps,
 });

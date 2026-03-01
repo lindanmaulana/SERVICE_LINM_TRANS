@@ -1,0 +1,1 @@
+ALTER TABLE "otps" RENAME COLUMN "expiryDate" TO "expiry_date";

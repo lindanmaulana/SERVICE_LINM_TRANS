@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
-import { OauthGoogleSigninResponseDto } from '../dto/oauth-signin.dto';
-import { AuthhSignUpResponseDto } from '../dto/auth-signup.dto';
+import { OauthGoogleSigninResponseDto, AuthhSignUpResponseDto } from '@/modules/identity/auth/dto';
 
 @Injectable()
 export class AuthResponseMapper {
@@ -14,6 +13,7 @@ export class AuthResponseMapper {
 			provider: user.provider,
 			providerId: user.providerId,
 			avatar: user.avatar,
+			status: user.status,
 			createdAt: user.createdAt,
 			updatedAt: user.updatedAt,
 		};

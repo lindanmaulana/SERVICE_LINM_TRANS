@@ -22,6 +22,27 @@
       "when": 1771927053749,
       "tag": "0002_refactor_cascade_on_delete_update",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772318157050,
+      "tag": "0003_'create-otp-table'",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772356384554,
+      "tag": "0004_'add_users_status_notnul'",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1772359204962,
+      "tag": "0005_update_otps_expiryDate_to_expiry_date",
+      "breakpoints": true
     }
   ]
 }

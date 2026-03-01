@@ -1,6 +1,6 @@
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
-import { MS } from '@/common/utils/time.utils';
+import { MS } from '@/common/utils/time.util';
 import { envSchema, throttlerConfig, ThrottlerOptionsService, WinstonConfig } from '@/core/config';
 import { jwtConfig } from '@/core/config/jwt/jwt.config';
 import { DatabaseModule } from '@/core/database/database.module';

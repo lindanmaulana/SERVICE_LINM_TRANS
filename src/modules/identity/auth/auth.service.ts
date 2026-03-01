@@ -12,6 +12,9 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersSharedService } from '@/modules/master-data/users/users-shared.service';
 import { AuthhSignUpDto, AuthhSignUpResponseDto } from './dto/auth-signup.dto';
 import { AuthResponseMapper } from '@/modules/identity/auth/infrastructure/auth-response.mapper';
+import { UserStatus } from '@/common/const/user.const';
+import { OtpsSharedService } from '../otps/otps-shared.service';
+import { OtpsService } from '../otps/otps.service';
 
 @Injectable()
 export class AuthService {
@@ -19,8 +22,9 @@ export class AuthService {
 	constructor(
 		@Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
 		@Inject(REPOSITORY_TOKENS.USER) private readonly userRepository: UserRepository,
-		private userSharedService: UsersSharedService,
 		@Inject(LIBRARY_TOKENS.HASH) private readonly libHash: typeof bcrypt,
+		private otpService: OtpsService,
+		private userSharedService: UsersSharedService,
 		private jwtService: JwtService,
 	) {}
 
@@ -40,9 +44,14 @@ export class AuthService {
 			provider: 'local',
 			providerId: null,
 			avatar: null,
+			status: UserStatus.PENDING,
 		});
 
 		const result = await this.userRepository.create(record);
+		await this.otpService.requestRegisterOtp({
+			to: dto.email,
+			userId: result.id,
+		});
 
 		return AuthResponseMapper.toAuthSignUp(result);
 	}
@@ -62,6 +71,7 @@ export class AuthService {
 				provider: dto.provider,
 				providerId: dto.providerId,
 				avatar: dto.avatar,
+				status: UserStatus.ACTIVE,
 			});
 
 			const result = await this.userRepository.create(record);
