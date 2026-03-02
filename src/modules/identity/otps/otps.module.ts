@@ -18,6 +18,6 @@ import { DrizzleModule } from '@/core/database/drizzle/drizzle.module';
 			useClass: OtpDrizzleRepository,
 		},
 	],
-	exports: [OtpsSharedService],
+	exports: [OtpsService, OtpsSharedService],
 })
 export class OtpsModule {}

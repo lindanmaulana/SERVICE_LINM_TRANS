@@ -7,13 +7,15 @@ import { LIBRARY_TOKENS } from '@/common/const/token.const';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import * as path from 'path';
-import { SendMailDto } from './dto/send-mail.dto';
+import { SendMailDto } from '@/modules/identity/mail/dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailSharedService implements OnModuleInit {
 	protected logContext = this.constructor.name;
 	private fromEmail: string;
+	private toEmail: string;
+
 	constructor(
 		@Inject(LIBRARY_TOKENS.RESEND) private readonly resendMail: Resend,
 		@Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
@@ -21,42 +23,58 @@ export class MailSharedService implements OnModuleInit {
 	) {}
 
 	onModuleInit() {
-		const fromEmail = this.configService.get<string>('RESEND_FROM_EMAIL');
-		const layoutPath = path.join(__dirname, 'templates/layout.template.hbs');
+		const fromEmailTest = this.configService.get<string>('RESEND_FROM_EMAIL_TEST');
+		const toEmailTest = this.configService.get<string>('RESEND_TO_EMAIL_TEST');
+		const layoutPath = path.join(process.cwd(), 'templates', 'layout.template.hbs');
 
-		if (!fromEmail) {
-			this.logger.error('RESEND_FROM_EMAIL is not defined environment variable!', {
+		if (!fromEmailTest || !toEmailTest) {
+			this.logger.error('RESEND mail is not defined environment variable!', {
 				context: this.logContext,
 			});
 
 			throw new InternalServerErrorException('Terjadi kesalahan pada sistem!');
 		}
 
-		this.fromEmail = fromEmail;
+		this.fromEmail = fromEmailTest;
+		this.toEmail = toEmailTest;
 
-		if (fs.existsSync(layoutPath)) {
-			const layoutSource = fs.readFileSync(layoutPath, 'utf-8');
+		console.log({ layoutPath });
 
-			handlebars.registerPartial('layout', layoutSource);
+		if (!fs.existsSync(layoutPath)) {
+			this.logger.error('Layout path not found', { context: this.logContext });
+			throw new InternalServerErrorException('Terjadi kesalahan pada sistem!');
 		}
+
+		const layoutSource = fs.readFileSync(layoutPath, 'utf-8');
+		handlebars.registerPartial('layout', layoutSource);
 	}
 
 	async sendMail(dto: SendMailDto) {
-		const bodyPath = path.join(__dirname, `./templates/${dto.templateName}.hbs`);
+		const bodyPath = path.join(process.cwd(), 'templates', `${dto.templateName}.hbs`);
 
 		if (!fs.existsSync(bodyPath)) {
-			this.logger.error('BodyPath template is not defined', { context: this.logContext, bodyPath: bodyPath });
+			this.logger.error('Path body for template is not defined', {
+				context: this.logContext,
+				bodyPath: bodyPath,
+			});
+
 			throw new InternalServerErrorException('Terjadi kesalahan pada sistem!');
 		}
 
 		const bodyResource = fs.readFileSync(bodyPath, 'utf-8');
 		const bodyTemplate = handlebars.compile(bodyResource);
-		const bodyHtml = bodyTemplate({ email: dto.to, otp_code: dto.otpCode, verificationLink: dto.verificationLink });
+		const dataInput = {
+			title: dto.subject,
+			email: dto.to,
+			otpCode: dto.otpCode,
+			verificationLink: dto.verificationLink,
+		};
+		const bodyHtml = bodyTemplate(dataInput);
 
 		try {
 			const { data, error } = await this.resendMail.emails.send({
 				from: this.fromEmail,
-				to: dto.to,
+				to: this.toEmail,
 				subject: dto.subject,
 				html: bodyHtml,
 			});

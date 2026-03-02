@@ -25,7 +25,7 @@ export class OtpsService implements OnModuleInit {
 	) {}
 
 	onModuleInit() {
-		const baseUrlClient = this.configService.get<string>('BASE_URL_CLIENT');
+		const baseUrlClient = this.configService.get<string>('BASE_DOMAIN_CLIENT');
 
 		if (!baseUrlClient) {
 			this.logger.error('BASE_URL_CLIENT is not defined environment variable', { context: this.logContext });

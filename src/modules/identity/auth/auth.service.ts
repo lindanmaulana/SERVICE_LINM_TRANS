@@ -1,20 +1,18 @@
 import { LIBRARY_TOKENS, REPOSITORY_TOKENS } from '@/common/const/token.const';
 import { UserRole } from '@/common/const/user-role.const';
+import { UserStatus } from '@/common/const/user.const';
+import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
+import { OauthGoogleSigninDto, OauthGoogleSigninResponseDto } from '@/modules/identity/auth/dto/oauth-signin.dto';
+import { AuthResponseMapper } from '@/modules/identity/auth/infrastructure/auth-response.mapper';
+import { User } from '@/modules/master-data/users/domain/entities/user.entity';
 import type { UserRepository } from '@/modules/master-data/users/domain/repositories/user.repository';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { User } from '@/modules/master-data/users/domain/entities/user.entity';
-import { OauthGoogleSigninDto, OauthGoogleSigninResponseDto } from '@/modules/identity/auth/dto/oauth-signin.dto';
-import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
-import { JwtService } from '@nestjs/jwt';
-import { UsersSharedService } from '@/modules/master-data/users/users-shared.service';
-import { AuthhSignUpDto, AuthhSignUpResponseDto } from './dto/auth-signup.dto';
-import { AuthResponseMapper } from '@/modules/identity/auth/infrastructure/auth-response.mapper';
-import { UserStatus } from '@/common/const/user.const';
-import { OtpsSharedService } from '../otps/otps-shared.service';
 import { OtpsService } from '../otps/otps.service';
+import { AuthhSignUpDto, AuthhSignUpResponseDto } from './dto/auth-signup.dto';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +22,6 @@ export class AuthService {
 		@Inject(REPOSITORY_TOKENS.USER) private readonly userRepository: UserRepository,
 		@Inject(LIBRARY_TOKENS.HASH) private readonly libHash: typeof bcrypt,
 		private otpService: OtpsService,
-		private userSharedService: UsersSharedService,
 		private jwtService: JwtService,
 	) {}
 
