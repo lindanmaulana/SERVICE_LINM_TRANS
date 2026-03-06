@@ -2,7 +2,14 @@ import { OtpType } from '@/common/const/otp-type.const';
 import { REPOSITORY_TOKENS } from '@/common/const/token.const';
 import { MS } from '@/common/utils/time.util';
 import { RequestRegisterOtpDto } from '@/modules/identity/otps/dto';
-import { BadRequestException, Inject, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
+import {
+	BadRequestException,
+	Inject,
+	Injectable,
+	InternalServerErrorException,
+	NotFoundException,
+	OnModuleInit,
+} from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import otpGenerator from 'otp-generator';
 import { Logger } from 'winston';
@@ -34,6 +41,20 @@ export class OtpsService implements OnModuleInit {
 
 		this.baseUrlClient = baseUrlClient;
 	}
+
+	async findOneLastetByUserId(userId: string, type: OtpType): Promise<Otp | null> {
+		return await this.otpRepository.findLatestByUserIdAndType(userId, type);
+	}
+
+	async findLatestByUserIdEntityOrThrow(userId: string, type: OtpType): Promise<Otp> {
+		const otpEntity = await this.otpRepository.findLatestByUserIdAndType(userId, type);
+
+		if (!otpEntity) throw new NotFoundException('Otp tidak ditemukan');
+
+		return otpEntity;
+	}
+
+	async findLatestByUserId(userId: string, type: OtpType) {}
 
 	async requestRegisterOtp(dto: RequestRegisterOtpDto): Promise<boolean> {
 		const otpEntity = await this.requestOtp(dto.userId, OtpType.REGISTER_VERIFICATION);

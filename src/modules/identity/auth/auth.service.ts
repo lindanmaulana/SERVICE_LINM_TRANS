@@ -1,17 +1,26 @@
-import { LIBRARY_TOKENS, REPOSITORY_TOKENS } from '@/common/const/token.const';
+import { LIBRARY_TOKENS } from '@/common/const/token.const';
 import { UserRole } from '@/common/const/user-role.const';
 import { UserStatus } from '@/common/const/user.const';
 import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 import { OauthGoogleSigninDto, OauthGoogleSigninResponseDto } from '@/modules/identity/auth/dto/oauth-signin.dto';
 import { AuthResponseMapper } from '@/modules/identity/auth/infrastructure/auth-response.mapper';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
-import type { UserRepository } from '@/modules/master-data/users/domain/repositories/user.repository';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { UsersService } from '@/modules/master-data/users/users.service';
+import {
+	BadRequestException,
+	ConflictException,
+	ForbiddenException,
+	GoneException,
+	Inject,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { OtpsService } from '../otps/otps.service';
+import { SignupVerifyAuthDto } from './dto/auth-signup-verify.dto';
 import { AuthhSignUpDto, AuthhSignUpResponseDto } from './dto/auth-signup.dto';
 
 @Injectable()
@@ -19,23 +28,16 @@ export class AuthService {
 	protected logContext = this.constructor.name;
 	constructor(
 		@Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
-		@Inject(REPOSITORY_TOKENS.USER) private readonly userRepository: UserRepository,
 		@Inject(LIBRARY_TOKENS.HASH) private readonly libHash: typeof bcrypt,
+		private userService: UsersService,
 		private otpService: OtpsService,
 		private jwtService: JwtService,
 	) {}
 
 	async signUp(dto: AuthhSignUpDto): Promise<AuthhSignUpResponseDto> {
-		const userEntity = await this.userRepository.findByEmail(dto.email);
-		if (userEntity) {
-			throw new BadRequestException('Email telah di gunakan!');
-		}
-
-		const hashPassword = await this.libHash.hash(dto.password, 8);
-
 		const record = User.create({
 			email: dto.email,
-			password: hashPassword,
+			password: dto.password,
 			name: dto.name,
 			role: UserRole.CUSTOMER,
 			provider: 'local',
@@ -44,7 +46,7 @@ export class AuthService {
 			status: UserStatus.PENDING,
 		});
 
-		const result = await this.userRepository.create(record);
+		const result = await this.userService.create(record);
 		await this.otpService.requestRegisterOtp({
 			to: dto.email,
 			userId: result.id,
@@ -54,7 +56,7 @@ export class AuthService {
 	}
 
 	async signInGoogle(dto: OauthGoogleSigninDto): Promise<OauthGoogleSigninResponseDto> {
-		const userEntity = await this.userRepository.findByEmail(dto.email);
+		const userEntity = await this.userService.findOneByEmail(dto.email);
 
 		let payloadToken: JwtPayload = { id: '', name: 'User', email: '', role: UserRole.CUSTOMER };
 		let accessToken: string = '';
@@ -71,7 +73,7 @@ export class AuthService {
 				status: UserStatus.ACTIVE,
 			});
 
-			const result = await this.userRepository.create(record);
+			const result = await this.userService.create(record);
 
 			payloadToken = {
 				id: result.id,
@@ -96,4 +98,33 @@ export class AuthService {
 
 		return AuthResponseMapper.toOauthGoogleSignin(userEntity, accessToken);
 	}
+
+	async signUpVerify(dto: SignupVerifyAuthDto) {
+		const userEntity = await this.userService.findByEmailEntityOrThrow(dto.email);
+
+		if (userEntity.isDeleted()) {
+			throw new NotFoundException('Akun tidak ditemukan');
+		}
+
+		if (userEntity.isActive()) {
+			throw new ConflictException('Akun sudah aktif');
+		}
+
+		if (userEntity.isBanned()) {
+			throw new ForbiddenException('Akun anda di tangguhkan, Silahkan hubungi admin');
+		}
+
+		const otpEntity = await this.otpService.findLatestByUserIdEntityOrThrow(userEntity.id, 'REGISTER_VERIFICATION');
+		if (otpEntity.otpCode !== dto.otpCode) throw new BadRequestException('Kode OTP yang di masukan salah');
+		if (otpEntity.isExpired()) throw new BadRequestException('OTP sudah kedaluarsa');
+
+		if (otpEntity.isUsed) {
+			throw new GoneException('OTP sudah pernah digunakan. Silahkan minta kode baru');
+		}
+
+		otpEntity.markAsUsed();
+		userEntity.setActive();
+	}
+
+	async sendOtp() {}
 }

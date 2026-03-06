@@ -28,6 +28,9 @@ export class AuthController {
 		return this.authService.signUp(dto);
 	}
 
+	@Post('signup/verify')
+	async signUpVerify() {}
+
 	@Get('google')
 	@UseGuards(AuthGuard('google'))
 	async signInWithGoogle() {}

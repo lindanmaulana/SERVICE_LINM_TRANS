@@ -51,7 +51,7 @@ export class UsersController {
 	@Roles([UserRole.ADMIN])
 	@UseGuards(RoleAllowedGuard)
 	async getOne(@Param('id') id: string): Promise<GetOneUserResponseDto> {
-		return this.userService.findOne(id);
+		return this.userService.findById(id);
 	}
 
 	@Delete(':id')

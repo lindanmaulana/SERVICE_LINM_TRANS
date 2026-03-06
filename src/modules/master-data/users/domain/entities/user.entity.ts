@@ -1,5 +1,5 @@
 import { UserRole, UserRoleType } from '@/common/const/user-role.const';
-import { UserStatusType } from '@/common/const/user.const';
+import { UserStatus, UserStatusType } from '@/common/const/user.const';
 import { BadRequestException } from '@nestjs/common';
 
 export class User {
@@ -118,8 +118,32 @@ export class User {
 		this.updated();
 	}
 
+	setActive() {
+		this._status = UserStatus.ACTIVE;
+	}
+
 	setDeleted() {
 		this._deleted_at = new Date();
+	}
+
+	setPassword(password: string) {
+		this._password = password;
+	}
+
+	isActive(): boolean {
+		return this._status === UserStatus.ACTIVE;
+	}
+
+	isPending(): boolean {
+		return this._status === UserStatus.PENDING;
+	}
+
+	isBanned(): boolean {
+		return this._status === UserStatus.BANNED;
+	}
+
+	isDeleted(): boolean {
+		return this._deleted_at !== null;
 	}
 
 	get id(): string {

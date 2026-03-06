@@ -63,10 +63,6 @@ export class Otp {
 		this._updated_at = new Date();
 	}
 
-	private setUsed(): void {
-		this._is_used = true;
-	}
-
 	private extendExpiryDate(date: Date, minute: number): void {
 		const extend = date.getTime() + MS.MINUTE * minute;
 
@@ -81,6 +77,14 @@ export class Otp {
 		const minuteAgo = Date.now() - MS.MINUTE * minute;
 
 		return this._created_at.getTime() > minuteAgo;
+	}
+
+	isExpired(): boolean {
+		return this._expiry_date.getTime() < Date.now();
+	}
+
+	markAsUsed() {
+		this._is_used = true;
 	}
 
 	get id(): string {
@@ -119,9 +123,5 @@ export class Otp {
 
 	get updatedAt(): Date {
 		return this._updated_at;
-	}
-
-	get isExpired(): boolean {
-		return this._expiry_date.getTime() <= Date.now();
 	}
 }

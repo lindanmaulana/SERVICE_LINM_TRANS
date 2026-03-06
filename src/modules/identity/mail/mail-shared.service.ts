@@ -38,8 +38,6 @@ export class MailSharedService implements OnModuleInit {
 		this.fromEmail = fromEmailTest;
 		this.toEmail = toEmailTest;
 
-		console.log({ layoutPath });
-
 		if (!fs.existsSync(layoutPath)) {
 			this.logger.error('Layout path not found', { context: this.logContext });
 			throw new InternalServerErrorException('Terjadi kesalahan pada sistem!');
