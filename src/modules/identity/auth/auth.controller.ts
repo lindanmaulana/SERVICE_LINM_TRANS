@@ -5,16 +5,21 @@ import { CookieInterceptor } from '@/common/interceptors/cookie.interceptor';
 import type { OauthGooglePayload } from '@/common/interfaces/oauth-google-payload.interface';
 import { AuthService } from '@/modules/identity/auth/auth.service';
 import { AuthhSignUpDto, AuthhSignUpResponseDto } from '@/modules/identity/auth/dto/auth-signup.dto';
-import { Body, Controller, Get, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { OauthGoogleSigninResponseDto } from './dto/oauth-signin.dto';
 import { ResponseMessage } from '@/common/decorators/response-message.decorator';
+import { SignupVerifyAuthDto } from './dto/auth-signup-verify.dto';
+import { VerifyRegisterService } from './application/use-cases/verify-register.service';
 
 @Controller({ path: 'auth', version: '1' })
 @ApiTags('Auth')
 export class AuthController {
-	constructor(private authService: AuthService) {}
+	constructor(
+		private authService: AuthService,
+		private verifyRegisterService: VerifyRegisterService,
+	) {}
 
 	@Post('signin')
 	@UseGuards(AuthGuard('jwt'))
@@ -28,8 +33,11 @@ export class AuthController {
 		return this.authService.signUp(dto);
 	}
 
-	@Post('signup/verify')
-	async signUpVerify() {}
+	@Post('signup/verify/:email')
+	@ResponseMessage('Verifikasi akun berhasil', 'CUSTOM')
+	async signUpVerify(@Param('email') email: string, @Body() dto: SignupVerifyAuthDto): Promise<void> {
+		return this.verifyRegisterService.execute(email, dto);
+	}
 
 	@Get('google')
 	@UseGuards(AuthGuard('google'))

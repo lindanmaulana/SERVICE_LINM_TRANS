@@ -7,20 +7,14 @@ import { AuthResponseMapper } from '@/modules/identity/auth/infrastructure/auth-
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
 import { UsersService } from '@/modules/master-data/users/users.service';
 import {
-	BadRequestException,
-	ConflictException,
-	ForbiddenException,
-	GoneException,
 	Inject,
-	Injectable,
-	NotFoundException,
+	Injectable
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { OtpsService } from '../otps/otps.service';
-import { SignupVerifyAuthDto } from './dto/auth-signup-verify.dto';
 import { AuthhSignUpDto, AuthhSignUpResponseDto } from './dto/auth-signup.dto';
 
 @Injectable()
@@ -97,33 +91,6 @@ export class AuthService {
 		accessToken = this.jwtService.sign(payloadToken);
 
 		return AuthResponseMapper.toOauthGoogleSignin(userEntity, accessToken);
-	}
-
-	async signUpVerify(dto: SignupVerifyAuthDto) {
-		const userEntity = await this.userService.findByEmailEntityOrThrow(dto.email);
-
-		if (userEntity.isDeleted()) {
-			throw new NotFoundException('Akun tidak ditemukan');
-		}
-
-		if (userEntity.isActive()) {
-			throw new ConflictException('Akun sudah aktif');
-		}
-
-		if (userEntity.isBanned()) {
-			throw new ForbiddenException('Akun anda di tangguhkan, Silahkan hubungi admin');
-		}
-
-		const otpEntity = await this.otpService.findLatestByUserIdEntityOrThrow(userEntity.id, 'REGISTER_VERIFICATION');
-		if (otpEntity.otpCode !== dto.otpCode) throw new BadRequestException('Kode OTP yang di masukan salah');
-		if (otpEntity.isExpired()) throw new BadRequestException('OTP sudah kedaluarsa');
-
-		if (otpEntity.isUsed) {
-			throw new GoneException('OTP sudah pernah digunakan. Silahkan minta kode baru');
-		}
-
-		otpEntity.markAsUsed();
-		userEntity.setActive();
 	}
 
 	async sendOtp() {}

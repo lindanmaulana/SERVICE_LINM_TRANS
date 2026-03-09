@@ -4,11 +4,12 @@ import { BaseRepository } from '@/core/database/drizzle/base.repository';
 import * as schema from '@/core/database/drizzle/schema';
 import { Otp } from '@/modules/identity/otps/domain/entities/otp.entity';
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { OtpPersistanceMapper } from './otp-persistance.mapper';
+import type { OtpRepository } from '../../domain/repositories/otp.repository';
 
 @Injectable()
 export class OtpDrizzleRepository extends BaseRepository {
@@ -19,6 +20,10 @@ export class OtpDrizzleRepository extends BaseRepository {
 		@Inject(WINSTON_MODULE_NEST_PROVIDER) public logger: Logger,
 	) {
 		super(logger, OtpDrizzleRepository.name);
+	}
+
+	transaction(tx: any): OtpRepository {
+		return new OtpDrizzleRepository(tx, this.logger);
 	}
 
 	async create(otp: Otp): Promise<Otp> {
@@ -61,6 +66,20 @@ export class OtpDrizzleRepository extends BaseRepository {
 			if (!result) return null;
 
 			return true;
+		});
+	}
+
+	async consume(id: string): Promise<void> {
+		return this.execute(async () => {
+			this.logger.log('Consume otp registered verify', { context: this.logCtx });
+			await this.db
+				.update(schema.OtpsTable)
+				.set({
+					isUsed: true,
+					attempts: sql`${schema.OtpsTable.attempts} + 1`,
+					updatedAt: new Date(),
+				})
+				.where(eq(schema.OtpsTable.id, id));
 		});
 	}
 }

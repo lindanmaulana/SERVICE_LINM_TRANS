@@ -1,5 +1,4 @@
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
-import { error } from 'console';
 import { DrizzleError, DrizzleQueryError } from 'drizzle-orm';
 import { Logger } from 'winston';
 
@@ -35,13 +34,14 @@ export abstract class BaseRepository {
 				logData.params = err.params;
 			}
 
+			console.log({err})
+
 			this.logger.error('Database operation failed', logData);
 
 			const dbCode = (err as any).code || (err as any).errno;
 			if (dbCode === '23503' || dbCode === 1451)
 				throw new BadRequestException('Data tidak bisa di hapus karena masih digunakan dalam riwayat sistem!');
 
-			console.log({err})
 			throw new InternalServerErrorException('Terjadi kesalahan pada sistem, silahkan coba lagi nanti!');
 		}
 	}

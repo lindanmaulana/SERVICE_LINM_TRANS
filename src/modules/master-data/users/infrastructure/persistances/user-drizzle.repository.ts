@@ -8,6 +8,8 @@ import { Logger } from 'winston';
 import { User } from '../../domain/entities/user.entity';
 import { UserPersistanceMapper } from './user-persistance.mapper';
 import { DB_TOKENS } from '@/common/const/token.const';
+import { UserStatus } from '@/common/const/user.const';
+import type { UserRepository } from '../../domain/repositories/user.repository';
 
 @Injectable()
 export class UserDrizzleRepository extends BaseRepository {
@@ -19,32 +21,8 @@ export class UserDrizzleRepository extends BaseRepository {
 		super(logger, UserDrizzleRepository.name);
 	}
 
-	async findById(id: string): Promise<User | null> {
-		return this.execute(async () => {
-			const [existingUser] = await this.db
-				.select()
-				.from(schema.UsersTable)
-				.where(eq(schema.UsersTable.id, id))
-				.limit(1);
-
-			if (!existingUser) return null;
-
-			return UserPersistanceMapper.toEntity(existingUser);
-		});
-	}
-
-	async findByEmail(email: string): Promise<User | null> {
-		return this.execute(async () => {
-			const [existingUser] = await this.db
-				.select()
-				.from(schema.UsersTable)
-				.where(eq(schema.UsersTable.email, email))
-				.limit(1);
-
-			if (!existingUser) return null;
-
-			return UserPersistanceMapper.toEntity(existingUser);
-		});
+	transaction(tx: any): UserRepository {
+		return new UserDrizzleRepository(tx, this.logger);
 	}
 
 	async create(user: User): Promise<User> {
@@ -81,6 +59,60 @@ export class UserDrizzleRepository extends BaseRepository {
 				.returning();
 
 			return UserPersistanceMapper.toEntity(result);
+		});
+	}
+
+	async findById(id: string): Promise<User | null> {
+		return this.execute(async () => {
+			const [existingUser] = await this.db
+				.select()
+				.from(schema.UsersTable)
+				.where(eq(schema.UsersTable.id, id))
+				.limit(1);
+
+			if (!existingUser) return null;
+
+			return UserPersistanceMapper.toEntity(existingUser);
+		});
+	}
+
+	async findByEmail(email: string): Promise<User | null> {
+		return this.execute(async () => {
+			const [existingUser] = await this.db
+				.select({
+					id: schema.UsersTable.id,
+					email: schema.UsersTable.email,
+					password: schema.UsersTable.password,
+					name: schema.UsersTable.name,
+					role: schema.UsersTable.role,
+					provider: schema.UsersTable.provider,
+					providerId: schema.UsersTable.providerId,
+					avatar: schema.UsersTable.avatar,
+					status: schema.UsersTable.status,
+					createdAt: schema.UsersTable.createdAt,
+					updatedAt: schema.UsersTable.updatedAt,
+					deletedAt: schema.UsersTable.deletedAt,
+				})
+				.from(schema.UsersTable)
+				.where(eq(schema.UsersTable.email, email))
+				.limit(1);
+
+			if (!existingUser) return null;
+
+			return UserPersistanceMapper.toEntity(existingUser);
+		});
+	}
+
+	async activate(email: string): Promise<void> {
+		return this.execute(async () => {
+			this.logger.log('Activate User', { context: this.logContext });
+
+			await this.db
+				.update(schema.UsersTable)
+				.set({
+					status: UserStatus.ACTIVE,
+				})
+				.where(eq(schema.UsersTable.email, email));
 		});
 	}
 }

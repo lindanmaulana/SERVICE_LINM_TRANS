@@ -4,8 +4,6 @@ import { createZodDto } from 'nestjs-zod';
 
 export const SignupVerifyAuthSchema = OtpBaseSchema.pick({
 	otpCode: true,
-}).extend({
-	email: z.email(),
 });
 
 export class SignupVerifyAuthDto extends createZodDto(SignupVerifyAuthSchema) {

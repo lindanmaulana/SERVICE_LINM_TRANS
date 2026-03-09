@@ -10,14 +10,13 @@ import {
 	NotFoundException,
 	OnModuleInit,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import otpGenerator from 'otp-generator';
 import { Logger } from 'winston';
-import { MailService } from '../mail/mail.service';
+import { MailSharedService } from '../mail/mail-shared.service';
 import { Otp } from './domain/entities/otp.entity';
 import type { OtpRepository } from './domain/repositories/otp.repository';
-import { ConfigService } from '@nestjs/config';
-import { MailSharedService } from '../mail/mail-shared.service';
 
 @Injectable()
 export class OtpsService implements OnModuleInit {
@@ -96,19 +95,9 @@ export class OtpsService implements OnModuleInit {
 		return await this.otpRepository.create(newOtp);
 	}
 
-	findAll() {
-		return `This action returns all otps`;
-	}
+	async verifyRegister(id: string, tx: any): Promise<void> {
+		const repo = tx ? this.otpRepository.transaction(tx) : this.otpRepository;
 
-	findOne(id: number) {
-		return `This action returns a #${id} otp`;
-	}
-
-	update(id: number, updateOtpDto) {
-		return `This action updates a #${id} otp`;
-	}
-
-	remove(id: number) {
-		return `This action removes a #${id} otp`;
+		await repo.consume(id);
 	}
 }

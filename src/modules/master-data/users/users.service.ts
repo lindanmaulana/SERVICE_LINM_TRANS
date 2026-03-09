@@ -31,13 +31,14 @@ export class UsersService {
 
 	async findByEmailEntityOrThrow(email: string): Promise<User> {
 		const user = await this.userRepository.findByEmail(email);
+
 		if (!user) throw new NotFoundException('User tidak ditemukan');
 
 		return user;
 	}
 
 	async findOneByEmail(email: string): Promise<User | null> {
-		return await this.userRepository.findByEmail(email)
+		return await this.userRepository.findByEmail(email);
 	}
 
 	async findProfile(user: JwtPayload): Promise<GetProfileUserResponseDto> {
@@ -62,7 +63,7 @@ export class UsersService {
 
 		if (user.password && user.password !== null) {
 			const hashPassword = await this.libHash.hash(user.password, 8);
-			user.setPassword(hashPassword)
+			user.setPassword(hashPassword);
 		}
 
 		return await this.userRepository.create(user);
@@ -86,5 +87,11 @@ export class UsersService {
 		await this.userRepository.delete(userEntity);
 
 		return {};
+	}
+
+	async activateUser(email: string, tx?: any): Promise<void> {
+		const repo = tx ? this.userRepository.transaction(tx) : this.userRepository;
+
+		await repo.activate(email);
 	}
 }

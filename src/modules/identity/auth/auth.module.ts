@@ -11,11 +11,19 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { OauthStrategy } from './strategies/oauth2.strategy';
 import { OtpsModule } from '../otps/otps.module';
+import { VerifyRegisterService } from './application/use-cases/verify-register.service';
 
 @Module({
-	imports: [DrizzleModule, PassportModule, UsersModule, OtpsModule, JwtModule.registerAsync({ useClass: JwtOptionsService })],
+	imports: [
+		DrizzleModule,
+		PassportModule,
+		UsersModule,
+		OtpsModule,
+		JwtModule.registerAsync({ useClass: JwtOptionsService }),
+	],
 	providers: [
 		AuthService,
+		VerifyRegisterService,
 		OauthStrategy,
 		JwtStrategy,
 		{
