@@ -6,8 +6,14 @@ import { RESPONSE_MESSAGE_KEY } from '../decorators/response-message.decorator';
 
 interface StandardPayload {
 	data?: unknown;
+	user?: unknown;
 	meta?: unknown;
 	access_token?: string;
+}
+
+interface SigninPayload {
+	user?: unknown;
+	access_token?: unknown;
 }
 
 interface FinalResponse {
@@ -48,9 +54,10 @@ export class ResponseInterceptor implements NestInterceptor {
 				}
 
 				if (isObj(payload)) {
-					const { data, meta, ...res } = payload as StandardPayload;
+					const { data, user, meta, ...res } = payload as StandardPayload;
 
-					response.data = data || (Object.keys(res).length > 0 ? res : null);
+					// Fix this case, if access_token on the payload, remove access_token so as not to be exposed to the client
+					response.data = user ? user : data;
 
 					if (meta) response.meta = meta;
 				}

@@ -12,6 +12,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { OauthStrategy } from './strategies/oauth2.strategy';
 import { OtpsModule } from '../otps/otps.module';
 import { VerifyRegisterService } from './application/use-cases/verify-register.service';
+import { ResendOtpRegisterService } from './application/use-cases/resend-otp-register.service';
 
 @Module({
 	imports: [
@@ -24,6 +25,7 @@ import { VerifyRegisterService } from './application/use-cases/verify-register.s
 	providers: [
 		AuthService,
 		VerifyRegisterService,
+		ResendOtpRegisterService,
 		OauthStrategy,
 		JwtStrategy,
 		{

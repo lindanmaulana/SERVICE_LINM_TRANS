@@ -6,16 +6,14 @@ import { OauthGoogleSigninDto, OauthGoogleSigninResponseDto } from '@/modules/id
 import { AuthResponseMapper } from '@/modules/identity/auth/infrastructure/auth-response.mapper';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
 import { UsersService } from '@/modules/master-data/users/users.service';
-import {
-	Inject,
-	Injectable
-} from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { OtpsService } from '../otps/otps.service';
 import { AuthhSignUpDto, AuthhSignUpResponseDto } from './dto/auth-signup.dto';
+import { AuthSigninDto, AuthSigninResponseDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -49,11 +47,31 @@ export class AuthService {
 		return AuthResponseMapper.toAuthSignUp(result);
 	}
 
+	async signin(dto: AuthSigninDto): Promise<AuthSigninResponseDto> {
+		const userEntity = await this.userService.findOneByEmail(dto.email);
+		if (!userEntity || !userEntity.password) throw new BadRequestException('Kredensial tidak valid');
+
+		const isPasswordValid = await this.libHash.compare(dto.password, userEntity.password);
+		if (!isPasswordValid) throw new BadRequestException('Kredensial tidak valid');
+
+		if (userEntity.isBanned()) throw new ForbiddenException('Akun anda ditangguhkan. Silahkan hubungi admin');
+
+		if (userEntity.isPending())
+			throw new ForbiddenException('Akun anda belum aktif. Silahkan lakukan aktivasi terlebih dulu');
+
+		const accessToken = await this.jwtService.signAsync({
+			id: userEntity.id,
+			email: userEntity.email,
+			role: userEntity.role,
+			name: userEntity.name ?? 'User',
+			status: userEntity.status,
+		});
+
+		return AuthResponseMapper.toAuthSignin(userEntity, accessToken);
+	}
+
 	async signInGoogle(dto: OauthGoogleSigninDto): Promise<OauthGoogleSigninResponseDto> {
 		const userEntity = await this.userService.findOneByEmail(dto.email);
-
-		let payloadToken: JwtPayload = { id: '', name: 'User', email: '', role: UserRole.CUSTOMER };
-		let accessToken: string = '';
 
 		if (!userEntity) {
 			const record = User.create({
@@ -69,26 +87,28 @@ export class AuthService {
 
 			const result = await this.userService.create(record);
 
-			payloadToken = {
+			const payloadToken: JwtPayload = {
 				id: result.id,
 				email: result.email,
 				role: result.role,
 				name: result.name ?? 'User',
+				status: result.status,
 			};
 
-			accessToken = this.jwtService.sign(payloadToken);
+			const accessToken = this.jwtService.sign(payloadToken);
 
 			return AuthResponseMapper.toOauthGoogleSignin(result, accessToken);
 		}
 
-		payloadToken = {
+		const payloadToken: JwtPayload = {
 			id: userEntity.id,
 			email: userEntity.email,
 			role: userEntity.role,
 			name: userEntity.name ?? 'User',
+			status: userEntity.status,
 		};
 
-		accessToken = this.jwtService.sign(payloadToken);
+		const accessToken = this.jwtService.sign(payloadToken);
 
 		return AuthResponseMapper.toOauthGoogleSignin(userEntity, accessToken);
 	}

@@ -12,3 +12,22 @@ export const AuthSignInSchema = UserBaseSchema.pick({
 export class AuthSigninDto extends createZodDto(AuthSignInSchema) {
 	static schema = AuthSignInSchema;
 }
+
+export const AuthSigninResponseSchema = z.object({
+	user: UserBaseSchema.pick({
+		id: true,
+		email: true,
+		name: true,
+		role: true,
+		status: true,
+		provider: true,
+		providerId: true,
+		avatar: true,
+		createdAt: true,
+		updatedAt: true,
+	}),
+
+	access_token: z.string(),
+});
+
+export class AuthSigninResponseDto extends createZodDto(AuthSigninResponseSchema) {}

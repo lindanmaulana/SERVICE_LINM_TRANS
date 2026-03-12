@@ -8,6 +8,11 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(private configService: ConfigService) {
+		// super({
+		// 	jwtFromRequest: ''
+		// 	ignoreExpiration: false,
+		// 	secretOrKey: configService.get<string>('JWT_SECRET_KEY'),
+		// });
 		const jwtSecretKey = configService.get<string>('JWT_SECRET_KEY');
 
 		if (!jwtSecretKey) {
@@ -25,6 +30,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 	}
 
 	validate(payload: JwtPayload): JwtPayload {
-		return { id: payload.id, email: payload.email, name: payload.name, role: payload.role };
+		return { id: payload.id, email: payload.email, name: payload.name, role: payload.role, status: payload.status };
 	}
 }

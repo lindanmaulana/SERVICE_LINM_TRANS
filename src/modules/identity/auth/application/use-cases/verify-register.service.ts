@@ -1,3 +1,7 @@
+import { DB_TOKENS } from '@/common/const/token.const';
+import * as schema from '@/core/database/drizzle/schema';
+import { OtpsService } from '@/modules/identity/otps/otps.service';
+import { UsersService } from '@/modules/master-data/users/users.service';
 import {
 	BadRequestException,
 	ConflictException,
@@ -9,15 +13,10 @@ import {
 	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
-import { SignupVerifyAuthDto } from '../../dto/auth-signup-verify.dto';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { UsersService } from '@/modules/master-data/users/users.service';
-import { OtpsService } from '@/modules/identity/otps/otps.service';
-import { DB_TOKENS } from '@/common/const/token.const';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '@/core/database/drizzle/schema';
-import { DrizzleError } from 'drizzle-orm';
+import { AuthSignupVerifyAuthDto } from '../../dto';
 
 @Injectable()
 export class VerifyRegisterService {
@@ -29,11 +28,11 @@ export class VerifyRegisterService {
 		private readonly otpService: OtpsService,
 	) {}
 
-	async execute(email: string, dto: SignupVerifyAuthDto): Promise<void> {
-		const userEntity = await this.userService.findByEmailEntityOrThrow(email);
+	async execute(dto: AuthSignupVerifyAuthDto): Promise<void> {
+		const userEntity = await this.userService.findByEmailEntityOrThrow(dto.email);
 
-		if (userEntity.isBanned()) throw new ForbiddenException(`Akun anda ditangguhkan. Silahkan hubungi admin`);
 		if (userEntity.isDeleted()) throw new NotFoundException(`Akun tidak ditemukan`);
+		if (userEntity.isBanned()) throw new ForbiddenException(`Akun anda ditangguhkan. Silahkan hubungi admin`);
 		if (userEntity.isActive()) throw new ConflictException('Akun anda sudah aktif');
 
 		const otpEntity = await this.otpService.findLatestByUserIdEntityOrThrow(userEntity.id, 'REGISTER_VERIFICATION');
@@ -51,7 +50,7 @@ export class VerifyRegisterService {
 				await this.userService.activateUser(userEntity.email, tx);
 			});
 		} catch (err) {
-			this.logger.error(`Transaction failed for ${email}: ${err.message}`, {
+			this.logger.error(`Transaction failed for ${dto.email}: ${err.message}`, {
 				context: this.logCtx,
 				stack: err.stack,
 			});
