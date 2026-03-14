@@ -1,3 +1,4 @@
+import { JwtTypeToken } from '../const/jwt-token-type.const';
 import { UserRoleType } from '../const/user-role.const';
 import { UserStatusType } from '../const/user.const';
 
@@ -7,4 +8,5 @@ export interface JwtPayload {
 	name: string;
 	role: UserRoleType;
 	status: UserStatusType;
+	type: JwtTypeToken
 }

@@ -2,7 +2,7 @@ import { UserBaseSchema } from '@/modules/master-data/users/dto/user.dto';
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 
-export const AuthhSignUpSchema = UserBaseSchema.pick({
+export const SignUpSchema = UserBaseSchema.pick({
 	email: true,
 	name: true,
 	password: true,
@@ -11,13 +11,13 @@ export const AuthhSignUpSchema = UserBaseSchema.pick({
 	password: z.string().min(8, { error: 'Password minimal 8 karakter' }),
 });
 
-export class AuthhSignUpDto extends createZodDto(AuthhSignUpSchema) {
-	static schema = AuthhSignUpSchema;
+export class SignUpDto extends createZodDto(SignUpSchema) {
+	static schema = SignUpSchema;
 }
 
-export const AuthhSignUpResponseSchema = UserBaseSchema.omit({
+export const SignUpResponseSchema = UserBaseSchema.omit({
 	password: true,
 	deletedAt: true,
 });
 
-export class AuthhSignUpResponseDto extends createZodDto(AuthhSignUpResponseSchema) {}
+export class SignUpResponseDto extends createZodDto(SignUpResponseSchema) {}

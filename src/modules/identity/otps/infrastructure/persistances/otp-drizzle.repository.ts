@@ -53,6 +53,43 @@ export class OtpDrizzleRepository extends BaseRepository {
 		});
 	}
 
+	async findOneLatestByUserIdAndOtpCode(userId: string, otpCode: string, type: OtpType): Promise<Otp | null> {
+		return this.execute(async () => {
+			this.logger.log('Find One Latest Otp by user and otpCode', {
+				context: this.logCtx,
+				userId: userId,
+				type: type,
+			});
+
+			const [result] = await this.db
+				.select({
+					id: schema.OtpsTable.id,
+					userId: schema.OtpsTable.userId,
+					otpCode: schema.OtpsTable.otpCode,
+					isUsed: schema.OtpsTable.isUsed,
+					expiryDate: schema.OtpsTable.expiryDate,
+					type: schema.OtpsTable.type,
+					attempts: schema.OtpsTable.attempts,
+					createdAt: schema.OtpsTable.createdAt,
+					updatedAt: schema.OtpsTable.updatedAt,
+				})
+				.from(schema.OtpsTable)
+				.where(
+					and(
+						eq(schema.OtpsTable.userId, userId),
+						eq(schema.OtpsTable.otpCode, otpCode),
+						eq(schema.OtpsTable.type, type),
+					),
+				)
+				.orderBy(desc(schema.OtpsTable.createdAt))
+				.limit(1);
+
+			if (!result) return null;
+
+			return OtpPersistanceMapper.toEntity(result);
+		});
+	}
+
 	async invalidatedAllActiveOtp(userId: string, type: OtpType): Promise<boolean | null> {
 		return this.execute(async () => {
 			this.logger.log('Invalidated All Active Otp User', { context: this.logCtx, userId: userId });
@@ -71,7 +108,7 @@ export class OtpDrizzleRepository extends BaseRepository {
 
 	async consume(id: string): Promise<void> {
 		return this.execute(async () => {
-			this.logger.log('Consume otp registered verify', { context: this.logCtx });
+			this.logger.log('Consume otp verify', { context: this.logCtx });
 			await this.db
 				.update(schema.OtpsTable)
 				.set({

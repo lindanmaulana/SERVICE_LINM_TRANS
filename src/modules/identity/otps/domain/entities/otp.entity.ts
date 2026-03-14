@@ -69,7 +69,7 @@ export class Otp {
 		this._expiry_date = new Date(extend);
 	}
 
-	private adddAttempts(): void {
+	adddAttempts(): void {
 		this._attempts += 1;
 	}
 

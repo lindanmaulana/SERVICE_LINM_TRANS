@@ -2,52 +2,74 @@ import { CookieName } from '@/common/decorators/cookie-name.decorator';
 import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 import { User } from '@/common/decorators/user.decorator';
 import { Cookies } from '@/common/enums/cookies.enum';
+import { JwtResetPasswordGuard } from '@/common/guards/reset-password.guard';
 import { CookieInterceptor } from '@/common/interceptors/cookie.interceptor';
+import type { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 import type { OauthGooglePayload } from '@/common/interfaces/oauth-google-payload.interface';
-import { AuthService } from '@/modules/identity/auth/auth.service';
 import {
-	AuthhSignUpDto,
-	AuthhSignUpResponseDto,
-	AuthSigninDto,
-	AuthSigninResponseDto,
+	ForgotPasswordService,
+	ResetPasswordService,
+	SigninGoogleService,
+	SigninService,
+	SignupResendOtpService,
+	SignupService,
+	SignupVerifyService,
+	VerifyResetOtpService,
+} from '@/modules/identity/auth/application/use-cases';
+import {
+	ForgotPasswordDto,
+	OauthGoogleSigninResponseDto,
+	ResetPasswordDto,
+	SignUpDto,
+	SignUpResponseDto,
+	SigninDto,
+	SigninResponseDto,
+	SignupResendOtpDto,
+	SignupVerifyDto,
+	VerifyResetOtpDto,
+	VerifyResetOtpResponseDto,
 } from '@/modules/identity/auth/dto';
-import { Body, Controller, Get, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
-import { VerifyRegisterService } from './application/use-cases/verify-register.service';
-import { AuthSignupVerifyAuthDto } from './dto/auth-signup-verify.dto';
-import { OauthGoogleSigninResponseDto } from './dto/oauth-signin.dto';
-import { OtpResendRegistrationDto } from './dto/otp-resend-register.dto';
-import { ResendOtpRegisterService } from './application/use-cases/resend-otp-register.service';
 
 @Controller({ path: 'auth', version: '1' })
 @ApiTags('Auth')
 export class AuthController {
 	constructor(
-		private authService: AuthService,
-		private verifyRegisterService: VerifyRegisterService,
-		private resendOtpRegisterService: ResendOtpRegisterService,
+		private signinService: SigninService,
+		private signinGoogleService: SigninGoogleService,
+		private signupService: SignupService,
+		private signupVerifyService: SignupVerifyService,
+		private signupResendOtpService: SignupResendOtpService,
+		private forgotPasswordService: ForgotPasswordService,
+		private verifyResetOtpService: VerifyResetOtpService,
+		private resetPasswordService: ResetPasswordService,
 	) {}
 
 	@Post('signin')
 	@ResponseMessage('Login Berhasil', 'CUSTOM')
 	@UseInterceptors(CookieInterceptor)
 	@CookieName(Cookies.ACCESS_TOKEN)
-	async signIn(@Body() dto: AuthSigninDto): Promise<AuthSigninResponseDto> {
-		console.log('fungsi signin');
-		return this.authService.signin(dto);
+	async signIn(@Body() dto: SigninDto): Promise<SigninResponseDto> {
+		return this.signinService.execute(dto);
 	}
 
 	@Post('signup')
 	@ResponseMessage('Registrasi Berhasil', 'CREATE')
-	async signUp(@Body() dto: AuthhSignUpDto): Promise<AuthhSignUpResponseDto> {
-		return this.authService.signUp(dto);
+	async signUp(@Body() dto: SignUpDto): Promise<SignUpResponseDto> {
+		return this.signupService.execute(dto);
 	}
 
 	@Post('signup/verify')
 	@ResponseMessage('Verifikasi akun berhasil', 'CUSTOM')
-	async signUpVerify(@Body() dto: AuthSignupVerifyAuthDto): Promise<void> {
-		return this.verifyRegisterService.execute(dto);
+	async signUpVerify(@Body() dto: SignupVerifyDto): Promise<void> {
+		return this.signupVerifyService.execute(dto);
+	}
+
+	@Post('signup/resend-otp')
+	async signupResendOtp(@Body() dto: SignupResendOtpDto): Promise<void> {
+		return this.signupResendOtpService.execute(dto);
 	}
 
 	@Get('google')
@@ -59,11 +81,34 @@ export class AuthController {
 	@UseInterceptors(CookieInterceptor)
 	@CookieName(Cookies.ACCESS_TOKEN)
 	async signInWithGoogleRedirect(@User() user: OauthGooglePayload): Promise<OauthGoogleSigninResponseDto> {
-		return this.authService.signInGoogle(user);
+		return this.signinGoogleService.execute(user);
 	}
 
-	@Post('otp/resend-register')
-	async resendRegisterOtp(@Body() dto: OtpResendRegistrationDto): Promise<void> {
-		return this.resendOtpRegisterService.execute(dto);
+	@Post('forgot-password')
+	@HttpCode(HttpStatus.OK)
+	@ResponseMessage("Kode verifikasi berhasil di kirim", "CUSTOM")
+	async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<void> {
+		return this.forgotPasswordService.execute(dto);
 	}
+
+	@Post('verify-reset-otp')
+	@UseInterceptors(CookieInterceptor)
+	@CookieName(Cookies.RESET_PASSWORD_TOKEN)
+	@ResponseMessage('Verifikasi reset password berhasil', 'CUSTOM')
+	async verifyResetOtp(@Body() dto: VerifyResetOtpDto): Promise<VerifyResetOtpResponseDto> {
+		return this.verifyResetOtpService.execute(dto);
+	}
+
+	@Post('reset-password')
+	@UseGuards(JwtResetPasswordGuard)
+	@ResponseMessage('Password berhasil diubah', 'CUSTOM')
+	async resetPassword(@User() user: JwtPayload, @Body() dto: ResetPasswordDto): Promise<void> {
+		return this.resetPasswordService.execute(user, dto);
+	}
+
+	@Post('change-email/request')
+	async changeEmailRequest() {}
+
+	@Post('change-email/verify')
+	async changeEmailVerify() {}
 }

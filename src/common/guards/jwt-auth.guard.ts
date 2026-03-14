@@ -2,6 +2,7 @@ import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/com
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
+import { JwtTypeToken } from '../const/jwt-token-type.const';
 import { IsPublic } from '../decorators/is-public.decorator';
 
 interface PassportInfo {
@@ -25,12 +26,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 		return super.canActivate(context);
 	}
 
-	handleRequest<TUser = any>(err: any, user: TUser, info: PassportInfo): TUser {
+	handleRequest<TUser = any>(err: any, user: TUser, info: PassportInfo, context: ExecutionContext): TUser {
 		if (err || !user) {
 			const details = info?.message || 'No details';
 
 			throw err || new UnauthorizedException(`Authentication failed: ${details}`);
 		}
+
+		if (user['type'] !== JwtTypeToken.ACCESS_TOKEN) throw new UnauthorizedException('Sesi tidak valid atau telah berakhir!')
 
 		return user;
 	}

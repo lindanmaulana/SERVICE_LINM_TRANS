@@ -1,5 +1,6 @@
+import { JwtTypeToken } from '@/common/const/jwt-token-type.const';
 import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
@@ -8,12 +9,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(private configService: ConfigService) {
-		// super({
-		// 	jwtFromRequest: ''
-		// 	ignoreExpiration: false,
-		// 	secretOrKey: configService.get<string>('JWT_SECRET_KEY'),
-		// });
-		const jwtSecretKey = configService.get<string>('JWT_SECRET_KEY');
+		const jwtSecretKey = configService.get<string>('jwt.secretKey');
 
 		if (!jwtSecretKey) {
 			console.error('[JwtStrategy] JWT_SECRET_KEY is missing');
@@ -30,6 +26,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 	}
 
 	validate(payload: JwtPayload): JwtPayload {
-		return { id: payload.id, email: payload.email, name: payload.name, role: payload.role, status: payload.status };
+		if (payload.type !== JwtTypeToken.ACCESS_TOKEN) {
+			console.error('[JwtResetPasswordStrategy] invalid token type');
+			throw new UnauthorizedException('Terjadi kesalahan pada sistem');
+		}
+
+		return {
+			id: payload.id,
+			email: payload.email,
+			name: payload.name,
+			role: payload.role,
+			status: payload.status,
+			type: payload.type,
+		};
 	}
 }

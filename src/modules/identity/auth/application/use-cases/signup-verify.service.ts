@@ -16,10 +16,10 @@ import {
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { AuthSignupVerifyAuthDto } from '../../dto';
+import { SignupVerifyDto } from '@/modules/identity/auth/dto';
 
 @Injectable()
-export class VerifyRegisterService {
+export class SignupVerifyService {
 	protected logCtx = this.constructor.name;
 	constructor(
 		@Inject(DB_TOKENS.DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
@@ -28,7 +28,7 @@ export class VerifyRegisterService {
 		private readonly otpService: OtpsService,
 	) {}
 
-	async execute(dto: AuthSignupVerifyAuthDto): Promise<void> {
+	async execute(dto: SignupVerifyDto): Promise<void> {
 		const userEntity = await this.userService.findByEmailEntityOrThrow(dto.email);
 
 		if (userEntity.isDeleted()) throw new NotFoundException(`Akun tidak ditemukan`);

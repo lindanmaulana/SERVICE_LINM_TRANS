@@ -74,8 +74,14 @@ export class UsersService {
 		userEntity.update({ name: dto.name });
 
 		const result = await this.userRepository.update(userEntity);
-
 		return UserResponseMapper.toGetProfile(result);
+	}
+
+	async updatePassword(user: User, password: string): Promise<void> {
+		const hashNewPassword = await this.libHash.hash(password, 8)
+		user.update({password: hashNewPassword})
+
+		await this.userRepository.update(user)
 	}
 
 	async delete(userId: string): Promise<DeleteUserResponseDto> {

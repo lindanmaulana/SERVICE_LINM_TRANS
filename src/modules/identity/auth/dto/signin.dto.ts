@@ -2,18 +2,18 @@ import { UserBaseSchema } from '@/modules/master-data/users/dto/user.dto';
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 
-export const AuthSignInSchema = UserBaseSchema.pick({
+export const SignInSchema = UserBaseSchema.pick({
 	email: true,
 	password: true,
 }).extend({
 	password: z.string().min(1, { error: 'Password tidak boleh kosong!' }),
 });
 
-export class AuthSigninDto extends createZodDto(AuthSignInSchema) {
-	static schema = AuthSignInSchema;
+export class SigninDto extends createZodDto(SignInSchema) {
+	static schema = SignInSchema;
 }
 
-export const AuthSigninResponseSchema = z.object({
+export const SigninResponseSchema = z.object({
 	user: UserBaseSchema.pick({
 		id: true,
 		email: true,
@@ -30,4 +30,4 @@ export const AuthSigninResponseSchema = z.object({
 	access_token: z.string(),
 });
 
-export class AuthSigninResponseDto extends createZodDto(AuthSigninResponseSchema) {}
+export class SigninResponseDto extends createZodDto(SigninResponseSchema) {}

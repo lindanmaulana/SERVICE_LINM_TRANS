@@ -128,6 +128,7 @@ export class User {
 
 	setPassword(password: string) {
 		this._password = password;
+		this.updated()
 	}
 
 	isActive(): boolean {

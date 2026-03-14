@@ -17,6 +17,7 @@ import { Logger } from 'winston';
 import { MailSharedService } from '../mail/mail-shared.service';
 import { Otp } from './domain/entities/otp.entity';
 import type { OtpRepository } from './domain/repositories/otp.repository';
+import { RequestResetPasswordOtpDto } from './dto/request-reset-password-otp.dto';
 
 @Injectable()
 export class OtpsService implements OnModuleInit {
@@ -45,6 +46,10 @@ export class OtpsService implements OnModuleInit {
 		return await this.otpRepository.findLatestByUserIdAndType(userId, type);
 	}
 
+	async findOneLatestByUserIdAndOtpCode(userId: string, otpCode: string, type: OtpType): Promise<Otp | null> {
+		return await this.otpRepository.findOneLatestByUserIdAndOtpCode(userId, otpCode, type);
+	}
+
 	async findLatestByUserIdEntityOrThrow(userId: string, type: OtpType): Promise<Otp> {
 		const otpEntity = await this.otpRepository.findLatestByUserIdAndType(userId, type);
 
@@ -69,7 +74,21 @@ export class OtpsService implements OnModuleInit {
 		return true;
 	}
 
-	async requestResetPassword() {}
+	async requestResetPassword(dto: RequestResetPasswordOtpDto): Promise<boolean> {
+		const otpEntity = await this.requestOtp(dto.userId, OtpType.RESET_PASSWORD);
+
+		console.log({otpEntity})
+
+		await this.mailSharedService.sendMail({
+			to: dto.email,
+			otpCode: otpEntity.otpCode,
+			verificationLink: `${this.baseUrlClient}/auth/reset-password/verification`,
+			subject: `Konfirmasi Reset Password ${dto.email}`,
+			templateName: 'forgot-password.template',
+		});
+
+		return true;
+	}
 
 	private async requestOtp(userId: string, type: OtpType): Promise<Otp> {
 		const lastOtp = await this.otpRepository.findLatestByUserIdAndType(userId, type);
@@ -93,6 +112,10 @@ export class OtpsService implements OnModuleInit {
 		});
 
 		return await this.otpRepository.create(newOtp);
+	}
+
+	async verifyResetPassword(id: string): Promise<void> {
+		await this.otpRepository.consume(id)
 	}
 
 	async verifyRegister(id: string, tx: any): Promise<void> {

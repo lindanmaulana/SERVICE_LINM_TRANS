@@ -11,8 +11,17 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { OauthStrategy } from './strategies/oauth2.strategy';
 import { OtpsModule } from '../otps/otps.module';
-import { VerifyRegisterService } from './application/use-cases/verify-register.service';
-import { ResendOtpRegisterService } from './application/use-cases/resend-otp-register.service';
+import {
+	ForgotPasswordService,
+	ResetPasswordService,
+	SigninGoogleService,
+	SigninService,
+	SignupService,
+	SignupVerifyService,
+	SignupResendOtpService,
+	VerifyResetOtpService,
+} from '@/modules/identity/auth/application/use-cases';
+import { JwtResetPasswordStrategy } from './strategies/jwt-reset-password.strategy';
 
 @Module({
 	imports: [
@@ -24,10 +33,17 @@ import { ResendOtpRegisterService } from './application/use-cases/resend-otp-reg
 	],
 	providers: [
 		AuthService,
-		VerifyRegisterService,
-		ResendOtpRegisterService,
+		SigninService,
+		SignupService,
+		SigninGoogleService,
+		SignupVerifyService,
+		SignupResendOtpService,
+		ForgotPasswordService,
+		VerifyResetOtpService,
+		ResetPasswordService,
 		OauthStrategy,
 		JwtStrategy,
+		JwtResetPasswordStrategy,
 		{
 			provide: LIBRARY_TOKENS.HASH,
 			useValue: bcrypt,

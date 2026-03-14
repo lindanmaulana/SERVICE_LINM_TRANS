@@ -16,15 +16,15 @@ export class JwtOptionsService implements JwtOptionsFactory {
 	createJwtOptions(): Promise<JwtModuleOptions> | JwtModuleOptions {
 		const jwt = this.configService.get<JwtConfig>('jwt') as JwtConfig;
 
-		if (!jwt || !jwt.JwtSecretKey || !jwt.JwtExpiresIn) {
+		if (!jwt || !jwt.secretKey || !jwt.expiresIn) {
 			this.logger.error('JWT Configuration failed', { context: this.logContext });
 			throw new Error('Terjadi kesalahan pada sistem!');
 		}
 
 		return {
-			secret: jwt.JwtSecretKey,
+			secret: jwt.secretKey,
 			signOptions: {
-				expiresIn: jwt.JwtExpiresIn,
+				expiresIn: jwt.expiresIn,
 			},
 		};
 	}

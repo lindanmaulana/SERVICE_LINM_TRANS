@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
-import { OauthGoogleSigninResponseDto, AuthhSignUpResponseDto, AuthSigninResponseDto } from '@/modules/identity/auth/dto';
+import { OauthGoogleSigninResponseDto, SignUpResponseDto, SigninResponseDto } from '@/modules/identity/auth/dto';
 
 @Injectable()
 export class AuthResponseMapper {
@@ -19,7 +19,7 @@ export class AuthResponseMapper {
 		};
 	}
 
-	static toAuthSignin(user: User, accessToken: string): AuthSigninResponseDto {
+	static toAuthSignin(user: User, accessToken: string): SigninResponseDto {
 		return {
 			user: this.base(user),
 			access_token: accessToken,
@@ -33,7 +33,14 @@ export class AuthResponseMapper {
 		};
 	}
 
-	static toAuthSignUp(user: User): AuthhSignUpResponseDto {
+	static toAuthSignUp(user: User): SignUpResponseDto {
 		return this.base(user);
+	}
+
+	static toVerifyResetPassword(user: User, resetPasswordToken: string) {
+		return {
+			user: this.base(user),
+			reset_password_token: resetPasswordToken,
+		};
 	}
 }

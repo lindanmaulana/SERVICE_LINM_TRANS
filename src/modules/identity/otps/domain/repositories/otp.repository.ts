@@ -9,6 +9,8 @@ export interface OtpRepository {
 	// findById(id: string): Promise<Otp>;
 	// findByUserId(userId: string): Promise<Otp>;
 
+	findOneLatestByUserIdAndOtpCode(userId: string, otpCode: string, type: OtpType): Promise<Otp | null>
+
 	findLatestByUserIdAndType(userId: string, type: OtpType): Promise<Otp | null>;
 	invalidatedAllActiveOtp(userId: string, type: OtpType): Promise<boolean | null>;
 
