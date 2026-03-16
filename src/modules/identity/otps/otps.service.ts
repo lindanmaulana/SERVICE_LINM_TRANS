@@ -18,6 +18,7 @@ import { MailSharedService } from '../mail/mail-shared.service';
 import { Otp } from './domain/entities/otp.entity';
 import type { OtpRepository } from './domain/repositories/otp.repository';
 import { RequestResetPasswordOtpDto } from './dto/request-reset-password-otp.dto';
+import { RequestChangeEmailDto } from './dto/request-change-email.dto';
 
 @Injectable()
 export class OtpsService implements OnModuleInit {
@@ -60,7 +61,7 @@ export class OtpsService implements OnModuleInit {
 
 	async findLatestByUserId(userId: string, type: OtpType) {}
 
-	async requestRegisterOtp(dto: RequestRegisterOtpDto): Promise<boolean> {
+	async requestRegisterOtp(dto: RequestRegisterOtpDto): Promise<void> {
 		const otpEntity = await this.requestOtp(dto.userId, OtpType.REGISTER_VERIFICATION);
 
 		await this.mailSharedService.sendMail({
@@ -70,14 +71,10 @@ export class OtpsService implements OnModuleInit {
 			subject: 'Konfirmasi Registrasi Akun - Linm Trans',
 			templateName: 'register.template',
 		});
-
-		return true;
 	}
 
-	async requestResetPassword(dto: RequestResetPasswordOtpDto): Promise<boolean> {
+	async requestResetPassword(dto: RequestResetPasswordOtpDto): Promise<void> {
 		const otpEntity = await this.requestOtp(dto.userId, OtpType.RESET_PASSWORD);
-
-		console.log({otpEntity})
 
 		await this.mailSharedService.sendMail({
 			to: dto.email,
@@ -86,8 +83,20 @@ export class OtpsService implements OnModuleInit {
 			subject: `Konfirmasi Reset Password ${dto.email}`,
 			templateName: 'forgot-password.template',
 		});
+	}
 
-		return true;
+	async requestChangeEmail(userId: string, dto: RequestChangeEmailDto): Promise<void> {
+		const otpEntity = await this.requestOtp(userId, OtpType.CHANGE_EMAIL);
+
+		await this.mailSharedService.sendMail({
+			to: dto.currentEmail,
+			otpCode: otpEntity.otpCode,
+			verificationLink: `${this.baseUrlClient}/auth/change-email/verification`,
+			currentEmail: dto.currentEmail,
+			newEmail: dto.newEmail,
+			subject: `Konfirmasi Perubahan Email Akun ${dto.currentEmail} -> ${dto.newEmail}`,
+			templateName: 'change-email.template',
+		});
 	}
 
 	private async requestOtp(userId: string, type: OtpType): Promise<Otp> {
@@ -115,10 +124,16 @@ export class OtpsService implements OnModuleInit {
 	}
 
 	async verifyResetPassword(id: string): Promise<void> {
-		await this.otpRepository.consume(id)
+		await this.otpRepository.consume(id);
 	}
 
 	async verifyRegister(id: string, tx: any): Promise<void> {
+		const repo = tx ? this.otpRepository.transaction(tx) : this.otpRepository;
+
+		await repo.consume(id);
+	}
+
+	async verifyChangeEmail(id: string, tx?: any): Promise<void> {
 		const repo = tx ? this.otpRepository.transaction(tx) : this.otpRepository;
 
 		await repo.consume(id);

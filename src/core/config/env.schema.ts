@@ -24,7 +24,10 @@ export const envSchema = z.object({
 	JWT_EXPIRES_IN: z.coerce.number(),
 
 	JWT_RESET_PASSWORD_KEY: z.string(),
-	JWT_RESET_PASSWORD_EXPIRES_IN: z.string(),
+	JWT_RESET_PASSWORD_EXPIRES_IN: z.coerce.number(),
+
+	JWT_CHANGE_EMAIL_KEY: z.string(),
+	JWT_CHANGE_EMAIL_EXPIRES_IN: z.coerce.number(),
 
 	GOOGLE_CLIENT_ID: z.string(),
 	GOOGLE_CLIENT_SECRET: z.string(),

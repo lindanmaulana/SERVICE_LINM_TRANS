@@ -6,6 +6,9 @@ export interface JwtConfig {
 
 	resetSecretKey: string;
 	resetExpiresIn: number;
+
+	changeEmailSecretKey: string;
+	changeEmailExpiresIn: number;
 }
 
 export const jwtConfig = registerAs(
@@ -16,5 +19,8 @@ export const jwtConfig = registerAs(
 
 		resetSecretKey: process.env.JWT_RESET_PASSWORD_KEY ? process.env.JWT_RESET_PASSWORD_KEY : '',
 		resetExpiresIn: process.env.JWT_RESET_PASSWORD_EXPIRES_IN ? parseInt(process.env.JWT_RESET_PASSWORD_EXPIRES_IN) : 300000,
+
+		changeEmailSecretKey: process.env.JWT_CHANGE_EMAIL_KEY ? process.env.JWT_CHANGE_EMAIL_KEY : '',
+		changeEmailExpiresIn: process.env.JWT_CHANGE_EMAIL_EXPIRES_IN ? parseInt(process.env.JWT_CHANGE_EMAIL_EXPIRES_IN) : 300000
 	}),
 );

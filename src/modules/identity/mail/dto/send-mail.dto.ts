@@ -8,6 +8,8 @@ export const SendMailSchema = MailBaseSchema.omit({
 	otpCode: z.string(),
 	verificationLink: z.url(),
 	templateName: z.string(),
+	currentEmail: z.email().optional().nullable(),
+	newEmail: z.email().optional().nullable()
 });
 
 export class SendMailDto extends createZodDto(SendMailSchema) {

@@ -34,6 +34,11 @@ export class UsersController {
 		return 'hello brader';
 	}
 
+	@Get('/')
+	async getAll() {
+		return this.userService.findAll()
+	}
+
 	@Get('me')
 	@ResponseMessage('Profile', 'GET')
 	async me(@User() user: JwtPayload): Promise<GetProfileUserResponseDto> {

@@ -25,6 +25,14 @@ export class UserDrizzleRepository extends BaseRepository {
 		return new UserDrizzleRepository(tx, this.logger);
 	}
 
+	async findAll(): Promise<User[]> {
+		return this.execute(async () => {
+			const results = await this.db.select().from(schema.UsersTable)
+
+			return results.map(result => UserPersistanceMapper.toEntity(result))
+		})
+	}
+
 	async create(user: User): Promise<User> {
 		return this.execute(async () => {
 			const record = UserPersistanceMapper.toPersistence(user);

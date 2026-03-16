@@ -1,28 +1,27 @@
-import { JwtTypeToken } from '@/common/const/jwt-token-type.const';
 import { Cookies } from '@/common/enums/cookies.enum';
 import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
-export class JwtResetPasswordStrategy extends PassportStrategy(Strategy, 'jwt-reset') {
+export class JwtChangeEmailStrategy extends PassportStrategy(Strategy, 'jwt-change-email') {
 	constructor(private configService: ConfigService) {
-		const resetPasswordKey = configService.get<string>('jwt.resetSecretKey');
+		const changeEmailKey = configService.get<string>('jwt.changeEmailSecretKey');
 
-		if (!resetPasswordKey) {
-			console.error('[JwtResetPasswordStrategy] JWT_RESET_PASSWORD_KEY is missing configuration');
+		if (!changeEmailKey) {
+			console.error('[JwtChangeEmailStrategy] JWT_CHANGE_EMAIL_KEY is missing configuration');
 			throw new InternalServerErrorException('Terjadi kesalahan pada sistem.');
 		}
 
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([
-				(req: Request) => (req?.cookies?.[Cookies.RESET_PASSWORD_TOKEN] as string) || null,
+				(req: Request) => (req?.cookies?.[Cookies.CHANGE_EMAIL_TOKEN] as string) || null,
 			]),
 			ignoreExpiration: false,
-			secretOrKey: resetPasswordKey,
+			secretOrKey: changeEmailKey,
 		});
 	}
 

@@ -22,6 +22,12 @@ export class UsersService {
 		private userSharedService: UsersSharedService,
 	) {}
 
+	async findAll() {
+		const result = await this.userRepository.findAll()
+
+		return result
+	}
+
 	async findByIdEntityOrThrow(id: string): Promise<User> {
 		const user = await this.userRepository.findById(id);
 		if (!user) throw new NotFoundException('User tidak ditemukan');
@@ -78,10 +84,10 @@ export class UsersService {
 	}
 
 	async updatePassword(user: User, password: string): Promise<void> {
-		const hashNewPassword = await this.libHash.hash(password, 8)
-		user.update({password: hashNewPassword})
+		const hashNewPassword = await this.libHash.hash(password, 8);
+		user.update({ password: hashNewPassword });
 
-		await this.userRepository.update(user)
+		await this.userRepository.update(user);
 	}
 
 	async delete(userId: string): Promise<DeleteUserResponseDto> {
@@ -99,5 +105,11 @@ export class UsersService {
 		const repo = tx ? this.userRepository.transaction(tx) : this.userRepository;
 
 		await repo.activate(email);
+	}
+
+	async update(user: User, tx?: any): Promise<void> {
+		const repo = tx ? this.userRepository.transaction(tx) : this.userRepository;
+
+		await repo.update(user);
 	}
 }

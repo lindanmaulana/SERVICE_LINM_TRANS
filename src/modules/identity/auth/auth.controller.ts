@@ -2,11 +2,15 @@ import { CookieName } from '@/common/decorators/cookie-name.decorator';
 import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 import { User } from '@/common/decorators/user.decorator';
 import { Cookies } from '@/common/enums/cookies.enum';
+import { JwtChangeEmailGuard } from '@/common/guards/change-email.guard';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { JwtResetPasswordGuard } from '@/common/guards/reset-password.guard';
 import { CookieInterceptor } from '@/common/interceptors/cookie.interceptor';
 import type { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 import type { OauthGooglePayload } from '@/common/interfaces/oauth-google-payload.interface';
 import {
+	ChangeEmailRequestService,
+	ChangeEmailVerifyService,
 	ForgotPasswordService,
 	ResetPasswordService,
 	SigninGoogleService,
@@ -17,6 +21,9 @@ import {
 	VerifyResetOtpService,
 } from '@/modules/identity/auth/application/use-cases';
 import {
+	ChangeEmailRequestDto,
+	ChangeEmailRequestResponseDto,
+	ChangeEmailVerifyDto,
 	ForgotPasswordDto,
 	OauthGoogleSigninResponseDto,
 	ResetPasswordDto,
@@ -39,12 +46,17 @@ export class AuthController {
 	constructor(
 		private signinService: SigninService,
 		private signinGoogleService: SigninGoogleService,
+
 		private signupService: SignupService,
 		private signupVerifyService: SignupVerifyService,
 		private signupResendOtpService: SignupResendOtpService,
+
 		private forgotPasswordService: ForgotPasswordService,
 		private verifyResetOtpService: VerifyResetOtpService,
 		private resetPasswordService: ResetPasswordService,
+
+		private changeEmailRequestService: ChangeEmailRequestService,
+		private changeEmailVerifyService: ChangeEmailVerifyService,
 	) {}
 
 	@Post('signin')
@@ -86,7 +98,7 @@ export class AuthController {
 
 	@Post('forgot-password')
 	@HttpCode(HttpStatus.OK)
-	@ResponseMessage("Kode verifikasi berhasil di kirim", "CUSTOM")
+	@ResponseMessage('Kode verifikasi berhasil di kirim', 'CUSTOM')
 	async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<void> {
 		return this.forgotPasswordService.execute(dto);
 	}
@@ -107,8 +119,22 @@ export class AuthController {
 	}
 
 	@Post('change-email/request')
-	async changeEmailRequest() {}
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(JwtAuthGuard)
+	@UseInterceptors(CookieInterceptor)
+	@CookieName(Cookies.CHANGE_EMAIL_TOKEN)
+	@ResponseMessage('Kode verifikasi berhasil di kirim', 'CUSTOM')
+	async changeEmailRequest(
+		@User() user: JwtPayload,
+		@Body() dto: ChangeEmailRequestDto,
+	): Promise<ChangeEmailRequestResponseDto> {
+		return this.changeEmailRequestService.execute(user, dto);
+	}
 
 	@Post('change-email/verify')
-	async changeEmailVerify() {}
+	@UseGuards(JwtAuthGuard, JwtChangeEmailGuard)
+	@ResponseMessage('Email berhasil di ubah', 'CUSTOM')
+	async changeEmailVerify(@User() user: JwtPayload, @Body() dto: ChangeEmailVerifyDto): Promise<void> {
+		return this.changeEmailVerifyService.execute(user, dto);
+	}
 }

@@ -1,4 +1,5 @@
 import { JwtTypeToken } from '@/common/const/jwt-token-type.const';
+import { Cookies } from '@/common/enums/cookies.enum';
 import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -18,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([
-				(req: Request) => (req?.cookies?.access_token as string) || null,
+				(req: Request) => (req?.cookies?.[Cookies.ACCESS_TOKEN] as string) || null,
 			]),
 			ignoreExpiration: false,
 			secretOrKey: jwtSecretKey,
@@ -26,11 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 	}
 
 	validate(payload: JwtPayload): JwtPayload {
-		if (payload.type !== JwtTypeToken.ACCESS_TOKEN) {
-			console.error('[JwtResetPasswordStrategy] invalid token type');
-			throw new UnauthorizedException('Terjadi kesalahan pada sistem');
-		}
-
 		return {
 			id: payload.id,
 			email: payload.email,

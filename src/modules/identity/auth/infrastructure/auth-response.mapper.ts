@@ -43,4 +43,11 @@ export class AuthResponseMapper {
 			reset_password_token: resetPasswordToken,
 		};
 	}
+
+	static toChangeEmailRequest(user: User, changeEmailToken: string) {
+		return {
+			user: this.base(user),
+			change_email_token: changeEmailToken,
+		};
+	}
 }

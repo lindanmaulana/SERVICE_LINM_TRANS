@@ -66,7 +66,14 @@ export class MailSharedService implements OnModuleInit {
 			email: dto.to,
 			otpCode: dto.otpCode,
 			verificationLink: dto.verificationLink,
+
+			...(dto.currentEmail &&
+				dto.newEmail && {
+					currentEmail: dto.currentEmail,
+					newEmail: dto.newEmail,
+				}),
 		};
+
 		const bodyHtml = bodyTemplate(dataInput);
 
 		try {
