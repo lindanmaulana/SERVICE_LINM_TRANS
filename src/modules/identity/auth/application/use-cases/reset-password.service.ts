@@ -21,7 +21,7 @@ export class ResetPasswordService {
 		if (dto.password !== dto.confirmPassword)
 			throw new BadRequestException('Password dan Confirm Password tidak valid');
 
-		const userEntity = await this.userService.findOneByEmail(user.email);
+		const userEntity = await this.userService.findEntityByEmail(user.email);
 		if (!userEntity || userEntity === null) throw new NotFoundException('Akun tidak ditemukan');
 
 		if (userEntity.isDeleted()) throw new NotFoundException('Akun tidak ditemukan');

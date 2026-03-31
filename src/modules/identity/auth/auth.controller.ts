@@ -38,7 +38,7 @@ import {
 } from '@/modules/identity/auth/dto';
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller({ path: 'auth', version: '1' })
 @ApiTags('Auth')
@@ -60,6 +60,8 @@ export class AuthController {
 	) {}
 
 	@Post('signin')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ summary: 'User Login', description: 'Melakukan autentikasi user menggunakan email dan password. Mengembalikan JWT access Token dalam cookie.', })
 	@ResponseMessage('Login Berhasil', 'CUSTOM')
 	@UseInterceptors(CookieInterceptor)
 	@CookieName(Cookies.ACCESS_TOKEN)
@@ -68,7 +70,9 @@ export class AuthController {
 	}
 
 	@Post('signup')
+	@ApiOperation({ summary: 'User Register', description: 'Melakukan registrasi akun menggunakan email dan password' })
 	@ResponseMessage('Registrasi Berhasil', 'CREATE')
+	@ApiOkResponse({ type: SignUpResponseDto })
 	async signUp(@Body() dto: SignUpDto): Promise<SignUpResponseDto> {
 		return this.signupService.execute(dto);
 	}
@@ -109,7 +113,7 @@ export class AuthController {
 	@ResponseMessage('Verifikasi reset password berhasil', 'CUSTOM')
 	async verifyResetOtp(@Body() dto: VerifyResetOtpDto): Promise<VerifyResetOtpResponseDto> {
 		return this.verifyResetOtpService.execute(dto);
-	}
+	} 
 
 	@Post('reset-password')
 	@UseGuards(JwtResetPasswordGuard)

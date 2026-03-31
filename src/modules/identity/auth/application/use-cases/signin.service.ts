@@ -18,7 +18,7 @@ export class SigninService {
 	) {}
 
 	async execute(dto: SigninDto): Promise<SigninResponseDto> {
-		const userEntity = await this.userService.findOneByEmail(dto.email);
+		const userEntity = await this.userService.findEntityByEmail(dto.email);
 		if (!userEntity || !userEntity.password) throw new BadRequestException('Kredensial tidak valid');
 
 		const isPasswordValid = await this.libHash.compare(dto.password, userEntity.password);

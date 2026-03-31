@@ -30,7 +30,10 @@ export const UserBaseSchema = createSelectSchema(UsersTable, {
 	provider: z.string().min(1, 'Provider tidak boleh kosong').default('local'),
 	providerId: z.string().nullable(),
 	avatar: z.string().nullable(),
-	createdAt: z.date(),
-	updatedAt: z.date(),
-	deletedAt: z.date().nullable(),
+	createdAt: z.string().refine((val) => !Number.isNaN(Date.parse(val)), { error: 'Invalid iso date' }),
+	updatedAt: z.string().refine((v) => !Number.isNaN(Date.parse(v)), { error: 'Invalid iso date' }),
+	deletedAt: z
+		.string()
+		.refine((v) => !Number.isNaN(Date.parse(v)), { error: 'Invalid iso date' })
+		.nullable(),
 });

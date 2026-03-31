@@ -14,8 +14,8 @@ export class AuthResponseMapper {
 			providerId: user.providerId,
 			avatar: user.avatar,
 			status: user.status,
-			createdAt: user.createdAt,
-			updatedAt: user.updatedAt,
+			createdAt: user.createdAt.toString(),
+			updatedAt: user.updatedAt.toString(),
 		};
 	}
 

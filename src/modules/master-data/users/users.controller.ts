@@ -1,6 +1,6 @@
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
-import { Body, Controller, Delete, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { Roles } from '@/common/decorators/roles.decorator';
@@ -14,6 +14,7 @@ import { ResponseMessage } from '@/common/decorators/response-message.decorator'
 import { GetOneUserResponseDto } from './dto/get-one-user.dto';
 import { UpdateProfileUserDto, UpdateProfileUserResponseDto } from './dto/update-profile-user.dto';
 import { DeleteUserResponseDto } from './dto/delete-user.dto';
+import { GetAllUserDto, GetAllUserResponseDto } from './dto/get-all.dto';
 
 @Controller({ path: 'users', version: '1' })
 @ApiTags('Users')
@@ -35,8 +36,11 @@ export class UsersController {
 	}
 
 	@Get('/')
-	async getAll() {
-		return this.userService.findAll()
+	@ResponseMessage('Users', 'GET')
+	@Roles([UserRole.ADMIN])
+	@UseGuards(RoleAllowedGuard)
+	async getAll(@Query() dto: GetAllUserDto): Promise<GetAllUserResponseDto> {
+		return this.userService.findAll(dto)
 	}
 
 	@Get('me')

@@ -1,7 +1,7 @@
 import { BaseRepository } from '@/core/database/drizzle/base.repository';
 import * as schema from '@/core/database/drizzle/schema';
 import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { and, desc, eq, ilike, or, param, SQL } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
@@ -9,7 +9,8 @@ import { User } from '../../domain/entities/user.entity';
 import { UserPersistanceMapper } from './user-persistance.mapper';
 import { DB_TOKENS } from '@/common/const/token.const';
 import { UserStatus } from '@/common/const/user.const';
-import type { UserRepository } from '../../domain/repositories/user.repository';
+import type { UserFilter, UserRepository } from '@/modules/master-data/users/domain/repositories/user.repository';
+import { count } from 'drizzle-orm';
 
 @Injectable()
 export class UserDrizzleRepository extends BaseRepository {
@@ -25,12 +26,40 @@ export class UserDrizzleRepository extends BaseRepository {
 		return new UserDrizzleRepository(tx, this.logger);
 	}
 
-	async findAll(): Promise<User[]> {
-		return this.execute(async () => {
-			const results = await this.db.select().from(schema.UsersTable)
+	async findAll(params: UserFilter): Promise<{ users: User[]; total: number }> {
+		const filters: SQL<unknown>[] = []
 
-			return results.map(result => UserPersistanceMapper.toEntity(result))
-		})
+		if (params.search) {
+			filters.push(or(
+				ilike(schema.UsersTable.name, `%${params.search}%`),
+				ilike(schema.UsersTable.email, `%${params.search}%`)
+			) as SQL )
+		}
+
+		if (params.role) filters.push(eq(schema.UsersTable.role, params.role))
+		if (params.status) filters.push(eq(schema.UsersTable.status, params.status))
+
+		const offset = (params.page - 1) * params.limit
+
+		return this.execute(async () => { 
+			const [results, totalResult] = await Promise.all([
+				this.db
+				.select()
+				.from(schema.UsersTable)
+				.where(and(...filters))
+				.limit(params.limit)
+				.offset(offset)
+				.orderBy(desc(schema.UsersTable.createdAt)),
+
+				this.db.select({value: count()})
+				.from(schema.UsersTable).where(and(...filters))
+			])
+
+			return {
+				users: results.map((result) => UserPersistanceMapper.toEntity(result)),
+				total: totalResult[0].value
+			}
+		});
 	}
 
 	async create(user: User): Promise<User> {

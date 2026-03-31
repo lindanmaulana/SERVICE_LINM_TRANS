@@ -19,7 +19,7 @@ export class SigninGoogleService {
 	) {}
 
 	async execute(dto: OauthGoogleSigninDto): Promise<OauthGoogleSigninResponseDto> {
-		const userEntity = await this.userService.findOneByEmail(dto.email);
+		const userEntity = await this.userService.findEntityByEmail(dto.email);
 
 		if (!userEntity) {
 			const record = User.create({

@@ -1,9 +1,18 @@
+import { UserRoleType } from '@/common/const/user-role.const';
+import { UserStatusType } from '@/common/const/user.const';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
+
+export interface UserFilter {
+	search?: string;
+	role?: UserRoleType;
+	status?: UserStatusType;
+	page: number;
+	limit: number;
+}
 
 export interface UserRepository {
 	transaction(tx: any): UserRepository;
-
-	findAll(): Promise<User[]>;
+	findAll(params: UserFilter): Promise<{ users: User[]; total: number }>;
 
 	findByEmail(email: string): Promise<User | null>;
 	findById(id: string): Promise<User | null>;

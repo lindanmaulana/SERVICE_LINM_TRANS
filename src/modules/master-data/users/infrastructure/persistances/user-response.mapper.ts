@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import type { TypeBaseMetaDto } from '@/common/dto/pagination.dto';
 import { User } from '@/modules/master-data/users/domain/entities/user.entity';
-import { GetProfileUserResponseDto } from '../../dto/get-profile-user.dto';
+import { Injectable } from '@nestjs/common';
+import { GetAllUserResponseDto } from '../../dto/get-all.dto';
 import { GetOneUserResponseDto } from '../../dto/get-one-user.dto';
+import { GetProfileUserResponseDto } from '../../dto/get-profile-user.dto';
 
 @Injectable()
 export class UserResponseMapper {
@@ -14,8 +16,8 @@ export class UserResponseMapper {
 			provider: user.provider,
 			avatar: user.avatar,
 			status: user.status,
-			createdAt: user.createdAt,
-			updatedAt: user.updatedAt,
+			createdAt: user.createdAt.toString(),
+			updatedAt: user.updatedAt.toString(),
 		};
 	}
 
@@ -27,7 +29,28 @@ export class UserResponseMapper {
 		return {
 			...this.base(user),
 			providerId: user.providerId,
-			deletedAt: user.deletedAt,
+			deletedAt: user.deletedAt ? user.deletedAt.toString() : null,
+		};
+	}
+
+	static toFindAll(users: User[], meta: TypeBaseMetaDto): GetAllUserResponseDto {
+		return {
+			user: users.map((user) => {
+				return {
+					id: user.id,
+					email: user.email,
+					name: user.name,
+					role: user.role,
+					provider: user.provider,
+					providerId: user.providerId,
+					avatar: user.avatar,
+					status: user.status,
+					createdAt: user.createdAt.toString(),
+					updatedAt: user.updatedAt.toString(),
+					deletedAt: user.deletedAt ? user.deletedAt.toString() : null,
+				};
+			}),
+			meta: meta,
 		};
 	}
 }

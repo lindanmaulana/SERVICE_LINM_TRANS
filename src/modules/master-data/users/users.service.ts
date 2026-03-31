@@ -1,17 +1,19 @@
 import { LIBRARY_TOKENS, REPOSITORY_TOKENS } from '@/common/const/token.const';
+import { TypeBaseMetaDto } from '@/common/dto/pagination.dto';
+import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
+import { User } from '@/modules/master-data/users/domain/entities/user.entity';
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import bcrypt from 'bcrypt';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import type { UserRepository } from './domain/repositories/user.repository';
-import { GetProfileUserResponseDto } from './dto/get-profile-user.dto';
-import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
-import { UsersSharedService } from './users-shared.service';
-import { UserResponseMapper } from './infrastructure/persistances/user-response.mapper';
-import { GetOneUserResponseDto } from './dto/get-one-user.dto';
-import { UpdateProfileUserDto, UpdateProfileUserResponseDto } from './dto/update-profile-user.dto';
+import type { UserFilter, UserRepository } from './domain/repositories/user.repository';
 import { DeleteUserResponseDto } from './dto/delete-user.dto';
-import { User } from '@/modules/master-data/users/domain/entities/user.entity';
-import bcrypt from 'bcrypt';
+import { GetAllUserDto, GetAllUserResponseDto } from './dto/get-all.dto';
+import { GetOneUserResponseDto } from './dto/get-one-user.dto';
+import { GetProfileUserResponseDto } from './dto/get-profile-user.dto';
+import { UpdateProfileUserDto, UpdateProfileUserResponseDto } from './dto/update-profile-user.dto';
+import { UserResponseMapper } from './infrastructure/persistances/user-response.mapper';
+import { UsersSharedService } from './users-shared.service';
 
 @Injectable()
 export class UsersService {
@@ -22,29 +24,26 @@ export class UsersService {
 		private userSharedService: UsersSharedService,
 	) {}
 
-	async findAll() {
-		const result = await this.userRepository.findAll()
+	async findAll(dto: GetAllUserDto): Promise<GetAllUserResponseDto> {
+		const filters: UserFilter = {
+			search: dto.search,
+			role: dto.role,
+			status: dto.status,
+			page: dto.page,
+			limit: dto.limit,
+		};
 
-		return result
-	}
+		const result = await this.userRepository.findAll(filters);
 
-	async findByIdEntityOrThrow(id: string): Promise<User> {
-		const user = await this.userRepository.findById(id);
-		if (!user) throw new NotFoundException('User tidak ditemukan');
+		const meta: TypeBaseMetaDto = {
+			page: dto.page,
+			limit: dto.limit,
+			total: result.total,
+			totalPage: Math.ceil(result.total / dto.limit),
+			links: Array.from({length: Math.ceil(result.total / dto.limit)}, (_, index) => index + 1)
+		}
 
-		return user;
-	}
-
-	async findByEmailEntityOrThrow(email: string): Promise<User> {
-		const user = await this.userRepository.findByEmail(email);
-
-		if (!user) throw new NotFoundException('User tidak ditemukan');
-
-		return user;
-	}
-
-	async findOneByEmail(email: string): Promise<User | null> {
-		return await this.userRepository.findByEmail(email);
+		return UserResponseMapper.toFindAll(result.users, meta)
 	}
 
 	async findProfile(user: JwtPayload): Promise<GetProfileUserResponseDto> {
@@ -55,11 +54,13 @@ export class UsersService {
 
 	async findById(id: string): Promise<GetOneUserResponseDto> {
 		const result = await this.findByIdEntityOrThrow(id);
+
 		return UserResponseMapper.toGetOne(result);
 	}
 
 	async findByEmail(email: string): Promise<GetOneUserResponseDto> {
 		const result = await this.findByEmailEntityOrThrow(email);
+
 		return UserResponseMapper.toGetOne(result);
 	}
 
@@ -83,13 +84,6 @@ export class UsersService {
 		return UserResponseMapper.toGetProfile(result);
 	}
 
-	async updatePassword(user: User, password: string): Promise<void> {
-		const hashNewPassword = await this.libHash.hash(password, 8);
-		user.update({ password: hashNewPassword });
-
-		await this.userRepository.update(user);
-	}
-
 	async delete(userId: string): Promise<DeleteUserResponseDto> {
 		const userEntity = await this.userSharedService.validateUserExistsById(userId);
 
@@ -99,6 +93,36 @@ export class UsersService {
 		await this.userRepository.delete(userEntity);
 
 		return {};
+	}
+
+	async findEntityByEmail(email: string): Promise<User | null> {
+		return await this.userRepository.findByEmail(email);
+	}
+
+	async findEntityById(id: string): Promise<User | null> {
+		return await this.userRepository.findById(id);
+	}
+
+	async findByIdEntityOrThrow(id: string): Promise<User> {
+		const user = await this.findEntityById(id);
+		if (!user) throw new NotFoundException('User tidak ditemukan');
+
+		return user;
+	}
+
+	async findByEmailEntityOrThrow(email: string): Promise<User> {
+		const user = await this.findEntityByEmail(email);
+
+		if (!user) throw new NotFoundException('User tidak ditemukan');
+
+		return user;
+	}
+
+	async updatePassword(user: User, password: string): Promise<void> {
+		const hashNewPassword = await this.libHash.hash(password, 8);
+		user.update({ password: hashNewPassword });
+
+		await this.userRepository.update(user);
 	}
 
 	async activateUser(email: string, tx?: any): Promise<void> {
